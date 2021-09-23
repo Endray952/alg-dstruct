@@ -31,9 +31,9 @@ void addNodeAfter(List* list, Node* node_in_list, Node* node_adds_after) {
 	node_adds_after->prev = node_in_list;
 	node_in_list->next = node_adds_after;
 }
-void addNodeSorting(List* list, Date date, int temperature) {
+void addNodeSorting(List* list, Date* date, int temperature) {
 	Node* node = malloc(sizeof(Node));
-	node->date = date;
+	node->date = *date;
 	node->temperature = temperature;
 	if (list->head == NULL) {
 		addNodeInEmptyList(list, node);
