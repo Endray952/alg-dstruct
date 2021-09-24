@@ -1,21 +1,22 @@
 #include "list.h"
 #include <stdio.h>
 list_t* listInitialize() {
-	list_t* list = malloc(sizeof(list_t));
+	list_t* list = (list_t*)malloc(sizeof(list_t));
 	list->head = NULL;
 	return list;
 }
-void AddNodeBefore(list_t* list, node_t* node_in_list, node_t* node_adds_before) {
-	if (node_in_list->prev == NULL) {
-		node_adds_before->next = node_in_list;
-		node_adds_before->prev = NULL;
-		list->head = node_adds_before;
+void AddNodeBefore(list_t* list, node_t* nodeInList, node_t* nodeAddsBefore) {
+	if (nodeInList->prev == NULL) {
+		nodeAddsBefore->next = nodeInList;
+		nodeAddsBefore->prev = NULL;
+		list->head = nodeAddsBefore;
+		nodeInList->prev = nodeAddsBefore;
 	}
 	else {
-		node_in_list->prev->next = node_adds_before;
-		node_adds_before->prev = node_in_list->prev;
-		node_adds_before->next = node_in_list;
-		node_in_list->prev = node_adds_before;
+		nodeInList->prev->next = nodeAddsBefore;
+		nodeAddsBefore->prev = nodeInList->prev;
+		nodeAddsBefore->next = nodeInList;
+		nodeInList->prev = nodeAddsBefore;
 	}
 }
 void AddNodeInEmptyList(list_t* list, node_t* node) {
@@ -23,16 +24,16 @@ void AddNodeInEmptyList(list_t* list, node_t* node) {
 	node->next = NULL;
 	node->prev = NULL;
 }
-void AddNodeAfter(list_t* list, node_t* node_in_list, node_t* node_adds_after) {
-	node_adds_after->next = node_in_list->next;
-	if (node_in_list->next != NULL) {
-		node_in_list->next->prev = node_adds_after;
+void AddNodeAfter(list_t* list, node_t* nodeInList, node_t* nodeAddsAfter) {
+	nodeAddsAfter->next = nodeInList->next;
+	if (nodeInList->next != NULL) {
+		nodeInList->next->prev = nodeAddsAfter;
 	}
-	node_adds_after->prev = node_in_list;
-	node_in_list->next = node_adds_after;
+	nodeAddsAfter->prev = nodeInList;
+	nodeInList->next = nodeAddsAfter;
 }
 void AddNodeSorting(list_t* list, date_t* date, int temperature) {
-	node_t* newNode = malloc(sizeof(node_t));
+	node_t* newNode = (node_t*)malloc(sizeof(node_t));
 	newNode->date = *date;
 	newNode->temperature = temperature;
 	if (list->head == NULL) {
