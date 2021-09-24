@@ -67,19 +67,6 @@ void AddNodeSorting(list_t* list, date_t* date, int temperature) {
 		AddNodeAfter(list, iterationNode, newNode);
 	}
 }
-void PrintList(list_t* list) {
-	if (list->head != NULL) {
-		node_t* node = list->head;
-		while (node != NULL) {
-			printf("%02i.%02i.%i\t%iC\n", node->date.day, node->date.month, node->date.year, node->temperature);
-			node = node->next;
-		}
-	}
-	else {
-		puts("Empty");
-	}
-
-}
 void PrintListTempLower0(list_t* list) {
 	if (list->head != NULL) {
 		node_t* node = list->head;

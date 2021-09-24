@@ -1,8 +1,7 @@
 #include "gtest/gtest.h"
-//extern "C" {
-//#include "list.h"
-//}
-#include "list.c"
+extern "C" {
+#include "list.h"
+}
 #define ADD_NODE_BEFORE_TWO_NODES \
 node_t nodeInList_1;\
 node_t nodeInList_2;\
@@ -230,11 +229,10 @@ while (iterNode != NULL) {\
     iterNode = iterNode->next;\
     n++;\
 }
-
 TEST(AddNodeSorting_Test, list_with_one_node_add_new_node_with_higher_temperature_after) {
 	ADD_NODE_SORTING_ONE_NODE(20, 9, 2021, 20)
 
-		EXPECT_EQ(n, 2);
+	EXPECT_EQ(n, 2);
 
 	EXPECT_TRUE(list.head != NULL);
 	EXPECT_EQ(list.head, &nodeInList);
@@ -249,7 +247,6 @@ TEST(AddNodeSorting_Test, list_with_one_node_add_new_node_with_higher_temperatur
 	EXPECT_EQ(nodeInList.next->date.year, dateAdd.year);
 
 }
-
 TEST(AddNodeSorting_Test, list_with_one_node_add_new_node_with_lower_temperature_before) {
 	ADD_NODE_SORTING_ONE_NODE(20, 9, 2021, -20)
 
@@ -285,7 +282,6 @@ TEST(AddNodeSorting_Test, list_with_one_node_add_new_node_with_equal_temperature
 	EXPECT_EQ(nodeInList.next->date.year, dateAdd.year);
 
 }
-
 TEST(AddNodeSorting_Test, list_with_one_node_add_new_node_with_equal_temperature_but_earlier_before) {
 	ADD_NODE_SORTING_ONE_NODE(01, 01, 2021, 15)
 
@@ -303,4 +299,3 @@ TEST(AddNodeSorting_Test, list_with_one_node_add_new_node_with_equal_temperature
 	EXPECT_EQ(nodeInList.prev->date.month, dateAdd.month);
 	EXPECT_EQ(nodeInList.prev->date.year, dateAdd.year);
 }
-
