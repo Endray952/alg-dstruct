@@ -193,8 +193,8 @@ TEST(AddNodeAfter_Test, list_has_three_nodes_inset_after_second) {
 	EXPECT_TRUE(nodeInList_3.next == NULL);
 }
 TEST(AddNodeSorting_Test, empty_list) {
-	date_t date = { 24,9,2021 };
-	int temperature = 15;
+	date_t date = { 1,1,2000 };
+	int temperature = 1;
 	list_t list;
 	list.head = NULL;
 
@@ -211,8 +211,8 @@ TEST(AddNodeSorting_Test, empty_list) {
 	EXPECT_TRUE(list.head->prev == NULL);
 }
 #define ADD_NODE_SORTING_ONE_NODE(day, month, year, temp)\
-date_t date = { 24,9,2021 };\
-int temperature = 15;\
+date_t date = {1,1,2000 };\
+int temperature = 1;\
 node_t nodeInList;\
 nodeInList.date = date;\
 nodeInList.temperature = temperature;\
@@ -230,7 +230,7 @@ while (iterNode != NULL) {\
     n++;\
 }
 TEST(AddNodeSorting_Test, list_with_one_node_add_new_node_with_higher_temperature_after) {
-	ADD_NODE_SORTING_ONE_NODE(20, 9, 2021, 20)
+	ADD_NODE_SORTING_ONE_NODE(1, 1, 2021, 10)
 
 	EXPECT_EQ(n, 2);
 
@@ -248,7 +248,7 @@ TEST(AddNodeSorting_Test, list_with_one_node_add_new_node_with_higher_temperatur
 
 }
 TEST(AddNodeSorting_Test, list_with_one_node_add_new_node_with_lower_temperature_before) {
-	ADD_NODE_SORTING_ONE_NODE(20, 9, 2021, -20)
+	ADD_NODE_SORTING_ONE_NODE(1, 1, 2021, -10)
 
 	EXPECT_EQ(n, 2);
 
@@ -265,7 +265,7 @@ TEST(AddNodeSorting_Test, list_with_one_node_add_new_node_with_lower_temperature
 	EXPECT_EQ(nodeInList.prev->date.year, dateAdd.year);
 }
 TEST(AddNodeSorting_Test, list_with_one_node_add_new_node_with_equal_temperature_but_later_after) {
-	ADD_NODE_SORTING_ONE_NODE(12, 12, 2021, 15)
+	ADD_NODE_SORTING_ONE_NODE(1, 1, 2021, 1)
 
 	EXPECT_EQ(n, 2);
 
@@ -283,7 +283,7 @@ TEST(AddNodeSorting_Test, list_with_one_node_add_new_node_with_equal_temperature
 
 }
 TEST(AddNodeSorting_Test, list_with_one_node_add_new_node_with_equal_temperature_but_earlier_before) {
-	ADD_NODE_SORTING_ONE_NODE(01, 01, 2021, 15)
+	ADD_NODE_SORTING_ONE_NODE(1, 1, 1970, 1)
 
 	EXPECT_EQ(n, 2);
 
