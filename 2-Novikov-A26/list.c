@@ -49,7 +49,8 @@ void AddNodeSorting(list_t* list, date_t* date, int temperature) {
 			else if (newNode->temperature == iterationNode->temperature) {
 				if ((newNode->date.year < iterationNode->date.year) ||
 					(newNode->date.year == iterationNode->date.year && newNode->date.month < iterationNode->date.month) ||
-					(newNode->date.year == iterationNode->date.year && newNode->date.month == iterationNode->date.month && newNode->date.day < iterationNode->date.day)) {
+					(newNode->date.year == iterationNode->date.year && newNode->date.month == iterationNode->date.month 
+						&& newNode->date.day < iterationNode->date.day)) {
 					AddNodeBefore(list, iterationNode, newNode);
 				}
 				else {
