@@ -3,21 +3,21 @@ typedef struct {
 	int day;
 	int month;
 	int year;
-} Date;
-typedef struct Node_t {
-	struct Node_t* next;
-	struct Node_t* prev;
+} date_t;
+typedef struct node_t {
+	struct node_t* next;
+	struct node_t* prev;
 	int temperature;
-	Date date;
-} Node;
-typedef struct List_t {
-	Node* head;
-} List;
-List* listInitialize();
-void addNodeBefore(List* list, Node* node_in_list, Node* node_adds_before);
-void addNodeInEmptyList(List* list, Node* node);
-void addNodeAfter(List* list, Node* node_in_list, Node* node_adds_after);
-void addNodeSorting(List* list, Date date, int temperature);
-void printList(List* list);
-void printListLT0(List* list);
-void checkTemperature(List* list, int temperature);
+	date_t date;
+} node_t;
+typedef struct {
+	node_t* head;
+} list_t;
+list_t* listInitialize();
+void AddNodeBefore(list_t* list, node_t* node_in_list, node_t* node_adds_before);
+void AddNodeInEmptyList(list_t* list, node_t* node);
+void AddNodeAfter(list_t* list, node_t* node_in_list, node_t* node_adds_after);
+void AddNodeSorting(list_t* list, date_t* date, int temperature);
+void PrintList(list_t* list);
+void PrintListTempLower0(list_t* list);
+void CheckTemperature(list_t* list, int temperature);

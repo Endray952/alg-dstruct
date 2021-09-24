@@ -1,11 +1,11 @@
 #include "list.h"
 #include <stdio.h>
-List* listInitialize() {
-	List* list = malloc(sizeof(List));
+list_t* listInitialize() {
+	list_t* list = malloc(sizeof(list_t));
 	list->head = NULL;
 	return list;
 }
-void addNodeBefore(List* list, Node* node_in_list, Node* node_adds_before) {
+void AddNodeBefore(list_t* list, node_t* node_in_list, node_t* node_adds_before) {
 	if (node_in_list->prev == NULL) {
 		node_adds_before->next = node_in_list;
 		node_adds_before->prev = NULL;
@@ -18,12 +18,12 @@ void addNodeBefore(List* list, Node* node_in_list, Node* node_adds_before) {
 		node_in_list->prev = node_adds_before;
 	}
 }
-void addNodeInEmptyList(List* list, Node* node) {
+void AddNodeInEmptyList(list_t* list, node_t* node) {
 	list->head = node;
 	node->next = NULL;
 	node->prev = NULL;
 }
-void addNodeAfter(List* list, Node* node_in_list, Node* node_adds_after) {
+void AddNodeAfter(list_t* list, node_t* node_in_list, node_t* node_adds_after) {
 	node_adds_after->next = node_in_list->next;
 	if (node_in_list->next != NULL) {
 		node_in_list->next->prev = node_adds_after;
@@ -31,44 +31,44 @@ void addNodeAfter(List* list, Node* node_in_list, Node* node_adds_after) {
 	node_adds_after->prev = node_in_list;
 	node_in_list->next = node_adds_after;
 }
-void addNodeSorting(List* list, Date* date, int temperature) {
-	Node* node = malloc(sizeof(Node));
-	node->date = *date;
-	node->temperature = temperature;
+void AddNodeSorting(list_t* list, date_t* date, int temperature) {
+	node_t* newNode = malloc(sizeof(node_t));
+	newNode->date = *date;
+	newNode->temperature = temperature;
 	if (list->head == NULL) {
-		addNodeInEmptyList(list, node);
+		AddNodeInEmptyList(list, newNode);
 	}
 	else {
-		Node* tmp_node = list->head;
+		node_t* iterationNode = list->head;
 		while (1) {
-			if (node->temperature < tmp_node->temperature) {
-				addNodeBefore(list, tmp_node, node);
+			if (newNode->temperature < iterationNode->temperature) {
+				AddNodeBefore(list, iterationNode, newNode);
 				return;
 			}
-			else if (node->temperature == tmp_node->temperature) {
-				if ((node->date.year < tmp_node->date.year) ||
-					(node->date.year == tmp_node->date.year && node->date.month < tmp_node->date.month) ||
-					(node->date.year == tmp_node->date.year && node->date.month == tmp_node->date.month && node->date.day < tmp_node->date.day)) {
-					addNodeBefore(list, tmp_node, node);
+			else if (newNode->temperature == iterationNode->temperature) {
+				if ((newNode->date.year < iterationNode->date.year) ||
+					(newNode->date.year == iterationNode->date.year && newNode->date.month < iterationNode->date.month) ||
+					(newNode->date.year == iterationNode->date.year && newNode->date.month == iterationNode->date.month && newNode->date.day < iterationNode->date.day)) {
+					AddNodeBefore(list, iterationNode, newNode);
 				}
 				else {
-					addNodeAfter(list, tmp_node, node);
+					AddNodeAfter(list, iterationNode, newNode);
 				}
 				return;
 			}
-			if (tmp_node->next != NULL) {
-				tmp_node = tmp_node->next;
+			if (iterationNode->next != NULL) {
+				iterationNode = iterationNode->next;
 			}
 			else {
 				break;
 			}
 		}
-		addNodeAfter(list, tmp_node, node);
+		AddNodeAfter(list, iterationNode, newNode);
 	}
 }
-void printList(List* list) {
+void PrintList(list_t* list) {
 	if (list->head != NULL) {
-		Node* node = list->head;
+		node_t* node = list->head;
 		while (node != NULL) {
 			printf("%02i.%02i.%i\t%iC\n", node->date.day, node->date.month, node->date.year, node->temperature);
 			node = node->next;
@@ -79,9 +79,9 @@ void printList(List* list) {
 	}
 
 }
-void printListLT0(List* list) {
+void PrintListTempLower0(list_t* list) {
 	if (list->head != NULL) {
-		Node* node = list->head;
+		node_t* node = list->head;
 		int noSuchElem = 0;
 		while (node != NULL) {
 			if (node->temperature < 0) {
@@ -98,9 +98,9 @@ void printListLT0(List* list) {
 		puts("Empty list");
 	}
 }
-void checkTemperature(List* list, int temperature) {
+void CheckTemperature(list_t* list, int temperature) {
 	if (list->head != NULL) {
-		Node* node = list->head;
+		node_t* node = list->head;
 		int noSuchElem = 0;
 		while (node != NULL) {
 			if (node->temperature == temperature) {

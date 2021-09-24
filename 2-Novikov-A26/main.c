@@ -2,26 +2,24 @@
 #include "list.h"
 
 
-void readFile(List* list) {
+void ReadFile(list_t* list) {
 	FILE* file = fopen("data.txt", "r");
-	Date date;
-	int temperature ;
-	while (fscanf(file, "%i.%i.%i;%i", &date.day, &date.month, &date.year, &temperature ) == 4) {
-		addNodeSorting(list, date, temperature);
+	date_t date;
+	int temperature;
+	while (fscanf(file, "%i.%i.%i;%i", &date.day, &date.month, &date.year, &temperature) == 4) {
+		AddNodeSorting(list, &date, temperature);
 	}
 
 	fclose(file);
 }
 
 int main() {
-	List* list_of_temperatures = listInitialize();
-	readFile(list_of_temperatures);
-	printList(list_of_temperatures);
-	puts("");
-	printListLT0(list_of_temperatures);
-	puts("");
-	int find_temperature;
-	scanf("%i", &find_temperature);
-	checkTemperature(list_of_temperatures, find_temperature);
+	list_t* listTemperatures = listInitialize();
+	ReadFile(listTemperatures);
+	PrintListTempLower0(listTemperatures);
+	int inputTemperature;
+	scanf("%i", &inputTemperature);
+	CheckTemperature(listTemperatures, inputTemperature);
+	node_t* node = malloc(sizeof(node_t));
 	return 0;
 }
