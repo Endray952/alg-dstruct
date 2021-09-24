@@ -13,7 +13,7 @@ typedef struct node_t {
 typedef struct {
 	node_t* head;
 } list_t;
-list_t* listInitialize();
+list_t* ListInitialize();
 void AddNodeBefore(list_t* list, node_t* node_in_list, node_t* node_adds_before);
 void AddNodeInEmptyList(list_t* list, node_t* node);
 void AddNodeAfter(list_t* list, node_t* node_in_list, node_t* node_adds_after);

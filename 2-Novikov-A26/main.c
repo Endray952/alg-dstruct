@@ -14,7 +14,7 @@ void ReadFile(list_t* list) {
 }
 
 int main() {
-	list_t* listTemperatures = listInitialize();
+	list_t* listTemperatures = ListInitialize();
 	ReadFile(listTemperatures);
 	PrintListTempLower0(listTemperatures);
 	int inputTemperature;

@@ -1,6 +1,6 @@
 #include "list.h"
 #include <stdio.h>
-list_t* listInitialize() {
+list_t* ListInitialize() {
 	list_t* list = (list_t*)malloc(sizeof(list_t));
 	list->head = NULL;
 	return list;
