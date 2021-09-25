@@ -37,7 +37,7 @@ TEST(AddNodeInEmptyList_Test, check_if_list_is_not_empty_after_adding_node) {
 	EXPECT_TRUE(node.next == NULL);
 	EXPECT_TRUE(node.prev == NULL);
 }
-TEST(AddNodeBefore_Test, list_has_one_node) {
+TEST(AddNodeBefore_Test, list_has_one_node_expect_node_inserts_before) {
 	node_t nodeInList;
 	list_t list;
 	list.head = &nodeInList;
@@ -111,7 +111,7 @@ TEST(AddNodeBefore_Test, list_has_three_nodes_insert_before_second_element) {
 	EXPECT_TRUE(nodeInList_3.next == NULL);
 	EXPECT_TRUE(nodeInList_3.prev == &nodeInList_2);
 }
-TEST(AddNodeAfter_Test, list_has_one_node) {
+TEST(AddNodeAfter_Test, list_has_one_node_expect_node_inserts_after) {
 	node_t nodeInList;
 	list_t list;
 	list.head = &nodeInList;
@@ -192,7 +192,7 @@ TEST(AddNodeAfter_Test, list_has_three_nodes_inset_after_second) {
 	EXPECT_TRUE(nodeInList_3.prev == &insertingNode);
 	EXPECT_TRUE(nodeInList_3.next == NULL);
 }
-TEST(AddNodeSorting_Test, empty_list) {
+TEST(AddNodeSorting_Test, empty_list_expect_list_contains_inserting_node) {
 	date_t date = { 1,1,2000 };
 	int temperature = 1;
 	list_t list;
@@ -229,7 +229,7 @@ while (iterNode != NULL) {\
     iterNode = iterNode->next;\
     n++;\
 }
-TEST(AddNodeSorting_Test, list_with_one_node_add_new_node_with_higher_temperature_after) {
+TEST(AddNodeSorting_Test, list_with_one_node_add_new_node_with_higher_temperature_expect_inserting_after) {
 	ADD_NODE_SORTING_ONE_NODE(1, 1, 2021, 10)
 
 	EXPECT_EQ(n, 2);
@@ -247,7 +247,7 @@ TEST(AddNodeSorting_Test, list_with_one_node_add_new_node_with_higher_temperatur
 	EXPECT_EQ(nodeInList.next->date.year, dateAdd.year);
 
 }
-TEST(AddNodeSorting_Test, list_with_one_node_add_new_node_with_lower_temperature_before) {
+TEST(AddNodeSorting_Test, list_with_one_node_add_new_node_with_lower_temperature_expect_inserting_before) {
 	ADD_NODE_SORTING_ONE_NODE(1, 1, 2021, -10)
 
 	EXPECT_EQ(n, 2);
@@ -264,7 +264,7 @@ TEST(AddNodeSorting_Test, list_with_one_node_add_new_node_with_lower_temperature
 	EXPECT_EQ(nodeInList.prev->date.month, dateAdd.month);
 	EXPECT_EQ(nodeInList.prev->date.year, dateAdd.year);
 }
-TEST(AddNodeSorting_Test, list_with_one_node_add_new_node_with_equal_temperature_but_later_after) {
+TEST(AddNodeSorting_Test, list_with_one_node_add_new_node_with_equal_temperature_but_later_expect_inserting_after) {
 	ADD_NODE_SORTING_ONE_NODE(1, 1, 2021, 1)
 
 	EXPECT_EQ(n, 2);
@@ -282,7 +282,7 @@ TEST(AddNodeSorting_Test, list_with_one_node_add_new_node_with_equal_temperature
 	EXPECT_EQ(nodeInList.next->date.year, dateAdd.year);
 
 }
-TEST(AddNodeSorting_Test, list_with_one_node_add_new_node_with_equal_temperature_but_earlier_before) {
+TEST(AddNodeSorting_Test, list_with_one_node_add_new_node_with_equal_temperature_but_earlier_expect_inserting_before) {
 	ADD_NODE_SORTING_ONE_NODE(1, 1, 1970, 1)
 
 	EXPECT_EQ(n, 2);
