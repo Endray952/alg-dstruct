@@ -2,6 +2,9 @@
 #include <stdio.h>
 list_t* ListInitialize() {
 	list_t* list = (list_t*)malloc(sizeof(list_t));
+	if (list == NULL) {
+		return NULL;
+	}
 	list->head = NULL;
 	return list;
 }
@@ -32,8 +35,12 @@ void AddNodeAfter(list_t* list, node_t* nodeInList, node_t* nodeAddsAfter) {
 	nodeAddsAfter->prev = nodeInList;
 	nodeInList->next = nodeAddsAfter;
 }
-void AddNodeSorting(list_t* list, date_t* date, int temperature) {
+int AddNodeSorting(list_t* list, date_t* date, int temperature) {
 	node_t* newNode = (node_t*)malloc(sizeof(node_t));
+	if (newNode == NULL) {
+		puts("malloc error in AddNodeSorting");
+		return -1;
+	}
 	newNode->date = *date;
 	newNode->temperature = temperature;
 	if (list->head == NULL) {
@@ -44,7 +51,7 @@ void AddNodeSorting(list_t* list, date_t* date, int temperature) {
 		while (1) {
 			if (newNode->temperature < iterationNode->temperature) {
 				AddNodeBefore(list, iterationNode, newNode);
-				return;
+				return 0;
 			}
 			else if (newNode->temperature == iterationNode->temperature) {
 				if ((newNode->date.year < iterationNode->date.year) ||
@@ -56,7 +63,7 @@ void AddNodeSorting(list_t* list, date_t* date, int temperature) {
 				else {
 					AddNodeAfter(list, iterationNode, newNode);
 				}
-				return;
+				return 0;
 			}
 			if (iterationNode->next != NULL) {
 				iterationNode = iterationNode->next;
@@ -67,6 +74,7 @@ void AddNodeSorting(list_t* list, date_t* date, int temperature) {
 		}
 		AddNodeAfter(list, iterationNode, newNode);
 	}
+	return 0;
 }
 void PrintListTempLower0(list_t* list) {
 	if (list->head != NULL) {

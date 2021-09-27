@@ -1,19 +1,32 @@
 #include "stdio.h"
 #include "list.h"
 
-void ReadFile(list_t* list) {
+int ReadFile(list_t* list) {
 	FILE* file = fopen("data.txt", "r");
+	if (file == NULL) {
+		puts("open file error");
+		return -1;
+	}
 	date_t date;
 	int temperature;
 	while (fscanf(file, "%i.%i.%i;%i", &date.day, &date.month, &date.year, &temperature) == 4) {
-		AddNodeSorting(list, &date, temperature);
+		if (AddNodeSorting(list, &date, temperature) < 0) {
+			return -1;
+		}
 	}
 	fclose(file);
+	return 0;
 }
 
 int main() {
 	list_t* listTemperatures = ListInitialize();
-	ReadFile(listTemperatures);
+	if (listTemperatures == NULL) {
+		puts("error in list initialization");
+		return 0;
+	}
+	if (ReadFile(listTemperatures) < 0) {
+		return 0;
+	}
 	PrintListTempLower0(listTemperatures);
 	int inputTemperature;
 	scanf("%i", &inputTemperature);

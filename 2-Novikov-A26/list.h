@@ -17,6 +17,6 @@ list_t* ListInitialize();
 void AddNodeBefore(list_t* list, node_t* node_in_list, node_t* node_adds_before);
 void AddNodeInEmptyList(list_t* list, node_t* node);
 void AddNodeAfter(list_t* list, node_t* node_in_list, node_t* node_adds_after);
-void AddNodeSorting(list_t* list, date_t* date, int temperature);
+int AddNodeSorting(list_t* list, date_t* date, int temperature);
 void PrintListTempLower0(list_t* list);
 void CheckTemperature(list_t* list, int temperature);
