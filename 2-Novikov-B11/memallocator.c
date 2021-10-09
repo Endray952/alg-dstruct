@@ -25,6 +25,7 @@ int meminit(void* pMemory, int size) {
 	return 1;
 }
 void* memalloc(int size) {
+	int _size = size;
 	int isEnd = 0;
 	char* charHead;
 	uint32_t* intHead = head.intHead;
@@ -50,18 +51,23 @@ void* memalloc(int size) {
 
 	//Заполняем ячейку данными
 	uint32_t* nullP = NULL;
-	*intHead = size  + FULLSIZE;
+	if (oldNext != NULL && oldSize - _size - FULLSIZE < FULLSIZE) { //Если мы вставляем не в конец, то предотвращаем появление дырок
+		_size = oldSize - FULLSIZE;
+	}
+	*intHead = _size  + FULLSIZE;
 	*(intHead + 1) = (uintptr_t)nullP;
 	*(intHead + 2) = (uintptr_t)nullP;
 	charHead = (char*)(intHead + 3);
-	intHead = (uint32_t*)(charHead + size);
-	*intHead = size + FULLSIZE;
+
+	intHead = (uint32_t*)(charHead + _size);
+
+	*intHead = _size + FULLSIZE;
 	void* p = (void*)charHead;
 
 	//Если у нас посередине была большая ячейка, в нее записали малый блок, то предвинуть указатель  на свободную часть справа
-	if (oldSize > FULLSIZE + size) { // Сюда входит случай добавления в начало и в середину
+	if (oldSize > FULLSIZE + _size) { // Сюда входит случай добавления в конец и в середину
 		intHead++;
-		*(intHead) = oldSize - (FULLSIZE + size);
+		*(intHead) = oldSize - (FULLSIZE + _size);
 		*(intHead + 1) = (uintptr_t)oldNext;
 		*(intHead + 2) = (uintptr_t)oldPrev;
 		if (oldPrev != NULL) {
@@ -69,8 +75,8 @@ void* memalloc(int size) {
 		}
 		if (isEnd == 0) { //Если разбили блок в середине
 			charHead = (char*)(intHead + 3);
-			intHead = (uint32_t*)(charHead + size);
-			*intHead = oldSize - (FULLSIZE + size);
+			intHead = (uint32_t*)(charHead + _size);
+			*intHead = oldSize - (FULLSIZE + _size);
 			intHead = (uint32_t*)(charHead - FULLSIZE + 4); //Указатель должен сидеть на размере блока
 		}
 	}
@@ -90,19 +96,51 @@ void* memalloc(int size) {
 	return p;
 }
 void memfree(void* p) {
-	//запоминаем, что находится в голове
-	int oldSize = *(head.intHead); 
-	uint32_t* oldHead = head.intHead;
+	char* charHead;
+	uint32_t* intHead = (uint32_t*)((char*)p - SIZE);
+	int* signedHead = (int*)intHead;
+	int size = *signedHead;
 
+	//запоминаем, что находится в голове, тк будем ее передвигать на освободившийся участок	
+	uint32_t* oldHead = head.intHead;
+	int n10 = *(intHead - 1);
+	//Проверка, можно ли слить слева
+	if ( *(signedHead - 1) < 0) {
+		//charHead = (char*)p + *((uint32_t*)p - 4);
+		charHead = (char*)(intHead - 1);
+		int leftSize = -(int)*(intHead - 1);//- тк размер отрицательный в свободных ячейках
+		charHead -= leftSize;
+		intHead = (uint32_t*)charHead - 3;
+		signedHead = (int*)intHead;
+		*signedHead = -(int)(size + leftSize);
+		charHead = (char*)signedHead; //возвращаемся в конец
+		charHead += size + leftSize - 4;
+		signedHead = (int*)charHead;
+		*signedHead = -(int)(size + leftSize);
+	}
+	//Выставляем отрицат значение size
+	*signedHead = -(int)*signedHead;
+	charHead = (char*)signedHead;
+	charHead += size - 4;
+	signedHead = (char*)charHead;
+	*signedHead = -(int)*signedHead;
+	int n6 = *signedHead;
 	//У старой головы теперь есть предыдущий элемент
-	*(oldHead + 2) = (uintptr_t)((char*)p - SIZE);
+	//*(oldHead + 2) = (uintptr_t)((char*)p - SIZE);
+	*(oldHead + 2) = (uintptr_t)(intHead);
 
 	//Переставляем голову
-	head.intHead = (uint32_t*)((char*)p - SIZE);
+	head.intHead = (uint32_t*)(intHead);
 	
 	//Ставим у новой головы следующий элемент
 	*(head.intHead + 1) = (uintptr_t)(oldHead);
 
+	int n1 = *head.intHead;
+	int n2 = (int)*((uint32_t*)*(head.intHead+1));
+	charHead = (char*)head.intHead;
+	charHead += size - 4;
+	signedHead = (int*)charHead;
+	int n3 = (int)*(signedHead);
 
 }
 

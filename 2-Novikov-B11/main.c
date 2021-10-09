@@ -23,13 +23,14 @@ int main() {
 
 	void* memory_block = malloc(1000);
 	meminit(memory_block, 1000);
-	int* p = (int*)memalloc(20);
+	int* p = (int*)memalloc(25);
 	int* p1 = (int*)memalloc(36);
-	memallocTest(36, p1);
 	memfree(p);
-	int* p2 = (int*)memalloc(22);
-	memallocTest(22, p2);
-	memallocTest(36, p1);
+	memfree(p1);
+
+
+
+	//memallocTest(36, p1);
 	//memallocTest(8, p);
 	
 	/*char* p = a;
