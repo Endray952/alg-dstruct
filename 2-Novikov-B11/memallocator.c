@@ -17,6 +17,9 @@ int meminit(void* pMemory, int size) {
 	head.charHead = (char*)pMemory;
 	head.intHead = (uint32_t*)pMemory;
 	uint32_t* p = NULL;
+	//¬ начале блока будет специальное поле, говор€щее о началае
+	*head.intHead = 0;
+	head.intHead++;
 	//”становка пол€ с размерами
 	*head.intHead = size;
 	*(head.intHead + 1) = (uintptr_t)p;
@@ -100,47 +103,62 @@ void memfree(void* p) {
 	uint32_t* intHead = (uint32_t*)((char*)p - SIZE);
 	int* signedHead = (int*)intHead;
 	int size = *signedHead;
-
+	int inEnd = 1; //‘лаг, если освобождаема€ пам€ть ни с чем не сливаетс€
+	
 	//запоминаем, что находитс€ в голове, тк будем ее передвигать на освободившийс€ участок	
 	uint32_t* oldHead = head.intHead;
-	int n10 = *(intHead - 1);
+
 	//ѕроверка, можно ли слить слева
-	if ( *(signedHead - 1) < 0) {
-		//charHead = (char*)p + *((uint32_t*)p - 4);
-		charHead = (char*)(intHead - 1);
-		int leftSize = -(int)*(intHead - 1);//- тк размер отрицательный в свободных €чейках
-		charHead -= leftSize;
-		intHead = (uint32_t*)charHead - 3;
+	if ( *(signedHead - 1) != 0 && *(signedHead - 1) < 0) {
+		inEnd = 0;
+
+		charHead = (char*)(intHead - 1); //сдвинулись влево на правый размер блока
+		int leftSize = -*((int*)(intHead - 1));//- тк размер отрицательный в свободных €чейках
+		charHead -= leftSize - 4; //сдвинулись влево на начало данных блока
+		intHead = (uint32_t*)charHead; //сдвинулись езе на 3*4, чтобы указывать на самое начало		
+
+		size += leftSize;
 		signedHead = (int*)intHead;
-		*signedHead = -(int)(size + leftSize);
-		charHead = (char*)signedHead; //возвращаемс€ в конец
-		charHead += size + leftSize - 4;
-		signedHead = (int*)charHead;
-		*signedHead = -(int)(size + leftSize);
 	}
+
+	charHead = (char*)(signedHead) + size;
+	int n2 = *((int*)charHead);
+	if (*((int*)charHead) < 0 || (uint32_t*)(*((int*)charHead+1)) == NULL) { // ” конечного дескриптора next == NULL
+		inEnd = 0;
+		signedHead = (int*)charHead;
+		*((uint32_t*)(charHead - size + 4)) = (uintptr_t)(*(signedHead + 1)); //ѕеремещаем влево указатель на next
+		
+		if ((uint32_t*)(*(signedHead + 2)) != NULL) { //ќбратились к элементу, на который указывал prev в присоедин€емом блоке
+			uint32_t* prevElem = (uint32_t*)(*(signedHead + 2));
+			*(prevElem + 1) = (uintptr_t)(charHead - size); // изменили поле next
+			*((uint32_t*)(charHead - size + 8)) = (uintptr_t)prevElem;
+		}
+		size += *signedHead;
+
+	}
+
+
 	//¬ыставл€ем отрицат значение size
-	*signedHead = -(int)*signedHead;
+	*signedHead = -size;
 	charHead = (char*)signedHead;
 	charHead += size - 4;
 	signedHead = (char*)charHead;
-	*signedHead = -(int)*signedHead;
-	int n6 = *signedHead;
-	//” старой головы теперь есть предыдущий элемент
-	//*(oldHead + 2) = (uintptr_t)((char*)p - SIZE);
-	*(oldHead + 2) = (uintptr_t)(intHead);
-
-	//ѕереставл€ем голову
-	head.intHead = (uint32_t*)(intHead);
+	*signedHead = -size;
 	
-	//—тавим у новой головы следующий элемент
-	*(head.intHead + 1) = (uintptr_t)(oldHead);
 
-	int n1 = *head.intHead;
-	int n2 = (int)*((uint32_t*)*(head.intHead+1));
-	charHead = (char*)head.intHead;
-	charHead += size - 4;
-	signedHead = (int*)charHead;
-	int n3 = (int)*(signedHead);
+	if (inEnd == 1) {
+		//” старой головы теперь есть предыдущий элемент
+		*(oldHead + 2) = (uintptr_t)(intHead);
+
+		//ѕереставл€ем голову
+		head.intHead = (uint32_t*)(intHead);
+
+		//—тавим у новой головы следующий элемент
+		*(head.intHead + 1) = (uintptr_t)(oldHead);
+	}
+
+	int n1 = *((uint32_t*)(*(head.intHead + 1)));
+	
 
 }
 
@@ -215,7 +233,7 @@ void memdone() {
 }
 int memgetminimumsize() {
 
-	return 2*FULLSIZE;
+	return 2*FULLSIZE + 4;
 }
 int memgetblocksize() {
 	return FULLSIZE;
