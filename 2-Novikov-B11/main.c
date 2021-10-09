@@ -28,8 +28,8 @@ int main() {
 	memfree(p);
 	memfree(p1);
 
-
-
+	int* p2 = (int*)memalloc(100);
+	memallocTest(116, p2);
 	//memallocTest(36, p1);
 	//memallocTest(8, p);
 	
