@@ -19,44 +19,22 @@ void memallocTest(int size, int* _p) {
 	}
 }
 int main() {
-	typedef struct header_ Header;
-
-	void* memory_block = malloc(1000);
-	meminit(memory_block, 1000);
-	int* p = (int*)memalloc(25);
-	int* p1 = (int*)memalloc(36);
-	memfree(p);
-	memfree(p1);
-
-	int* p2 = (int*)memalloc(100);
-	memallocTest(116, p2);
-	//memallocTest(36, p1);
-	//memallocTest(8, p);
 	
-	/*char* p = a;
-	int n1 = *(a - 2);
-	p += 8; a = (int*)p;
-	int n2 = *a;
-	int n3 = *(a + 1);*/
-
-	/*int* b = (int)memalloc(24);
-	memfree(a);
-	int m1 = *(b - 2);
-	int m2 = *(a - 2);
-	int m3 = *(b + 7);
-	int m4 = *(b + 8);*/
-
-	/*int*b = (int)memalloc(24);
-	int* b2 = b;
-	int b1 = *(b - 2);
-	char* p = a;
-	int n1 = *(a - 2);
-	p += 8; a = (int*)p;
-	int n2 = *a;
-	int n3 = *(a + 1);
-
-	int n4 = *(a + 9);
-	int n5 = *(a + 10);
-	int* n6 = (int*)*(a + 11);*/
+	char* init = malloc(1000);
+	meminit(init, 1000);
+	int* p = (int*)memalloc(24);
+	int* p1 = (int*)memalloc(100);
+	int n1 = *(p-4);
+	int n2 = *(p -1);
+	int n3 = *(p1 - 4);
+	int n4 = *(p1 - 1);
+	int n5 = *(p1 + 25);
+	int n6 = (int)((char*)p1 - (char*)p);
+	memfree(p);
+	n1 = *(p - 4);
+	n2 = *(p - 1);
+	memfree(p1);
+	n1 = *(p - 4);
+	n2 = *(p - 1);
 	return 0;
 }
