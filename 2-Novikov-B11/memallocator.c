@@ -117,7 +117,32 @@ void memfree(void* p) {
 		int b = size;
 		*intHead = size;
 	}
-	
+
+	//Убрать дырку справа
+	if ((uint32_t*) * (rightHead + 1) != NULL) {
+		int fullBlockSize = abs((int)((char*)intHead - (char*)((uint32_t*)*(intHead + 1))));
+		
+		if (*intHead < fullBlockSize) {
+			*intHead = fullBlockSize;
+		}
+	}
+	//Убрать дырку слева
+	if ((uint32_t*)*(intHead + 2) != NULL) {
+		leftHead = (uint32_t*)*(intHead + 2);
+		int fullLeftBlockSize = abs((int)((char*)leftHead - (char*)intHead));
+		if (*leftHead < fullLeftBlockSize) {
+			int initialSize = (int)*intHead;
+			char* charHead = (char*)((char*)intHead - abs((int)*leftHead - fullLeftBlockSize));
+			intHead = (uint32_t*)charHead;
+			*(rightHead + 2) = (uintptr_t)intHead;
+			*(leftHead + 1) = (uintptr_t)intHead;
+			*intHead = initialSize + abs((int)*leftHead - fullLeftBlockSize);
+			*(intHead + 1) = (uintptr_t)rightHead;
+			*(intHead + 2) = (uintptr_t)leftHead;
+			*(intHead + 3) = 0;
+		}
+	}
+
 	
 }
 

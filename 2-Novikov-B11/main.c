@@ -44,8 +44,16 @@ void testSIzes() {
 int main() {
 	//testSIzes();
 	char* init = malloc(1000);
-	meminit(init, 1000);
-	test3MallocandFreeMiddle();
+	meminit(init, 16 * 2 + 29);
+	int* p2 = memalloc(1);
+	int* p3 = memalloc(27);
+	/*int* p1 = memalloc(100);
+	int* p2 = memalloc(200);
+	int* p3 = memalloc(90);
+	memfree(p1);
+	p1 = memalloc(90);
+	memfree(p2);*/
+	//test3MallocandFreeMiddle();
 	//test2MallocandFreeSecond();
 	return 0;
 }
