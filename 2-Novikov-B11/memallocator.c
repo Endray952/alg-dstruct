@@ -26,13 +26,12 @@ int meminit(void* pMemory, int size) {
 void* memalloc(int size) {
 	void* pointer = NULL;
 	uint32_t* intHead = start.intStart;
-	uint32_t* endHandler;
 	int inEnd = 0;
 	while (1) {
 		if (*(intHead + 3) == 0 && *intHead > size + FULLSIZE) {
 			if ((uint32_t*)(*(intHead + 1)) == NULL) { //Если вставляем в начало
-				inEnd = 1;
-				endHandler = intHead;
+				if (*intHead < size + 2 * FULLSIZE) return NULL;
+				inEnd = 1;				
 			}
 			break;
 		}
@@ -51,7 +50,7 @@ void* memalloc(int size) {
 		uint32_t* nextHead = (uint32_t*)(charHead + size + FULLSIZE);
 		*nextHead = *intHead - size - FULLSIZE; // Перенес размер вправо
 		*(nextHead + 1) = (uintptr_t)p; //next у конца == NULL
-		*(nextHead + 2) = intHead; // предыдущий элесент у конца
+		*(nextHead + 2) = (uintptr_t)intHead; // предыдущий элесент у конца
 		*(nextHead + 3) = 0;//Ячейка свободна
 
 		*intHead = size + FULLSIZE;
@@ -98,8 +97,9 @@ void memfree(void* p) {
 		*leftHead = size;
 		intHead = leftHead;
 	}
+
 	uint32_t* rightHead = (uint32_t*)*(intHead + 1);
-	//uint32_t* rightPrev = (uint32_t*)*(rightHead + 2);
+
 	//Можно слить с правым блоком
 	if (*(rightHead + 3) == 0) {
 		if ((uint32_t*)(*(rightHead + 1)) != NULL) {
