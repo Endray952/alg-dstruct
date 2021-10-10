@@ -127,7 +127,7 @@ void memfree(void* p) {
 		}
 	}
 	//Убрать дырку слева
-	if ((uint32_t*)*(intHead + 2) != NULL) {
+	/*if ((uint32_t*)*(intHead + 2) != NULL) {
 		leftHead = (uint32_t*)*(intHead + 2);
 		int fullLeftBlockSize = abs((int)((char*)leftHead - (char*)intHead));
 		if (*leftHead < fullLeftBlockSize) {
@@ -141,79 +141,22 @@ void memfree(void* p) {
 			*(intHead + 2) = (uintptr_t)leftHead;
 			*(intHead + 3) = 0;
 		}
-	}
+	}*/
 
 	
 }
 
 
 
-//void* memalloc_1(int size) {
-//	uint32_t* intHead = head.intHead;
-//	char* charHead = head.charHead;
-//	while (1){
-//		if (*intHead - 12 >= size) {
-//			break;
-//		}
-//		if ((uint32_t*)*(intHead + 1) != NULL) {
-//			intHead = (uint32_t*)*(intHead + 1);
-//			charHead = (char*)intHead;
-//		}
-//		else {
-//			return NULL;
-//		}
-//		
-//	} 
-//	//Возвращаемый указатель указывает на начало свободного блока данных. Перед ним есть поля size и next.
-//	void* p = charHead + SIZE;
-//
-//	//Запоминаем значения указателя на начальный дескриптор
-//	uint32_t memsize = *intHead;
-//	uint32_t* memP = (uint32_t*)*(intHead + 1); // в принципе у начального дескриптора поле next всегда NULL
-//
-//	//добавить поле с размером выделяемого блока в конце
-//	*intHead = size + SIZE + 4;
-//	*(intHead + 1) = NULL;
-//	charHead += SIZE + size;
-//	intHead = (uint32_t*)charHead;
-//	*intHead = size + SIZE + 4;
-//
-//	//переместить указатель головы на нужное место
-//	charHead += 4;
-//	intHead = (uint32_t*)charHead;
-//	*intHead = (memsize - (SIZE + size + 4));
-//	*(intHead + 1) = (uintptr_t)memP;
-//	//head.next = memP;
-//	//int a = *head;
-//	if ((uint32_t*)*(head.intHead + 1) == NULL) {
-//		head.intHead = intHead;
-//		head.charHead = charHead;
-//	}
-//	return p;
-//}
-//void memfree_1(void* p) {
-//	int* pointer = (int*)p;
-//	char* charPointer = (char*)p;
-//	//утсановим отрицательный размер в дескрипотре освобождаемого блока
-//	int size = *(pointer - 2);
-//	int n1 = *(pointer - 2) = -size; // n1,n2 for test
-//	pointer = (int*)(charPointer + size);
-//	int n2 = *pointer = -size;
-//	pointer = (int*)charPointer;
-//
-//	//Установим указатель next освободившейся ячейки туда, где раньше был head
-//	uint32_t* uPointer = (uint32_t*)pointer;
-//
-//	*(uPointer - 1) = (uintptr_t)head.intHead;
-//	int n3 = *head.intHead; //for test
-//	int n4 = (int)*((uint32_t*)(uPointer - 1));
-//	head.intHead = uPointer - 2;
-//	head.charHead = (char*)head.intHead;
-//	int n5 = *head.intHead;
-//	int n6 = *((uint32_t*)*(head.intHead + 1));
-//}
 void memdone() {
-
+	uint32_t* intHead = start.intStart;
+	int s = 0;
+	while (intHead != NULL) {
+		if (*(intHead + 3) == 0) {
+			s += *intHead;
+		}
+		intHead = (uint32_t*)*(intHead + 1);
+	}
 }
 int memgetminimumsize() {
 
