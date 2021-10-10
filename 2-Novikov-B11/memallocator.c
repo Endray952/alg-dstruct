@@ -24,12 +24,8 @@ int meminit(void* pMemory, int size) {
 void* memalloc(int size) {
 	void* pointer = NULL;
 	uint32_t* intHead = start.intStart;
-	while (1) {
-		if (*(intHead + 3) == 0 && *intHead >= size + FULLSIZE) {
-			break;
-		}
-
-		if ((uint32_t*)(*(intHead + 1)) == NULL) { // NEXT == NULL только у дескриптора конца
+	while (!(*(intHead + 3) == 0 && *intHead >= size + FULLSIZE)) {
+		if ((uint32_t*)(*(intHead + 1)) == NULL) { // NEXT == NULL значит дальше свободных блоков нет
 			return NULL;
 		}
 		else {
@@ -37,9 +33,7 @@ void* memalloc(int size) {
 		}
 	}
 
-
-	if ((*intHead - size - FULLSIZE) > FULLSIZE) { //блок посередине делим на 2 блока, тк достаточно места
-		//char* charHead = (char*)intHead;
+	if ((*intHead - size - FULLSIZE) > FULLSIZE) { //если €чейку можно разбить на 2
 		uint32_t* rightHead = (uint32_t*)((char*)intHead + size + FULLSIZE); //”казывает на правый добавленный блок
 		*rightHead = *intHead - size - FULLSIZE; //–азмер правого блока
 		*(rightHead + 1) = (uintptr_t)(*(intHead + 1)); //next дл€ правого = next дл€ начального
@@ -54,7 +48,7 @@ void* memalloc(int size) {
 		// prev не трогаем
 		*(intHead + 3) = 1;
 	}
-	else { //ћожет по€витьс€ дырка
+	else { //≈сли в блоке после аллоцировани€ нет места под еще 1 блок. ћожет по€витьс€ дырка
 		*intHead = size + FULLSIZE;
 		*(intHead + 3) = 1;
 	}
@@ -95,9 +89,9 @@ void memfree(void* p) {
 		if ((uint32_t*)(*(rightHead + 1)) != NULL) {
 			*((uint32_t*)(*(rightHead + 1)) + 2) = (uintptr_t)intHead; //Ёлемент после правого указывает теперь на левый как свой prev		
 		}
-		*(intHead + 1) = (uintptr_t) * (rightHead + 1);
+		*(intHead + 1) = (uintptr_t) * (rightHead + 1); //next у головы теперь элемент после правого
 		int size;
-		if ((uint32_t) * (rightHead + 1) == NULL) {//≈сли у нас раасто€ние между блоком и конечным дескриптором
+		if ((uint32_t) * (rightHead + 1) == NULL) {//≈сли правый блок = конец
 			size = abs((int)((char*)intHead - (char*)rightHead)) + *rightHead;
 		}
 		else {
@@ -115,33 +109,14 @@ void memfree(void* p) {
 			*intHead = fullBlockSize;
 		}
 	}
-	else {
+	else { //≈сли наш блок конечный
 		int distance = abs((int)((char*)start.intStart - (char*)intHead)) + *(intHead);
 		if (distance < start.size) {
 			*intHead += start.size - distance;
 		}
 	}
-	//”брать дырку слева
-	/*if ((uint32_t*)*(intHead + 2) != NULL) {
-		leftHead = (uint32_t*)*(intHead + 2);
-		int fullLeftBlockSize = abs((int)((char*)leftHead - (char*)intHead));
-		if (*leftHead < fullLeftBlockSize) {
-			int initialSize = (int)*intHead;
-			char* charHead = (char*)((char*)intHead - abs((int)*leftHead - fullLeftBlockSize));
-			intHead = (uint32_t*)charHead;
-			*(rightHead + 2) = (uintptr_t)intHead;
-			*(leftHead + 1) = (uintptr_t)intHead;
-			*intHead = initialSize + abs((int)*leftHead - fullLeftBlockSize);
-			*(intHead + 1) = (uintptr_t)rightHead;
-			*(intHead + 2) = (uintptr_t)leftHead;
-			*(intHead + 3) = 0;
-		}
-	}*/
-
-
+	
 }
-
-
 
 void memdone() {
 	uint32_t* intHead = start.intStart;
@@ -154,7 +129,6 @@ void memdone() {
 	}
 }
 int memgetminimumsize() {
-
 	return FULLSIZE;
 }
 int memgetblocksize() {
