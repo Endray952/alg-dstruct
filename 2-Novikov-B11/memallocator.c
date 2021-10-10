@@ -12,20 +12,20 @@ handler_t start;
 
 int meminit(void* pMemory, int size) {
 	start.size = size;
-	//Начальный дескриптр содержит size, next = NULL, prev, isBusy = 0
+	//Initial descriptor contains size, next = NULL, prev, isBusy = 0
 	start.intStart = (uint32_t*)pMemory;
-	*(start.intStart) = size;
+	*(start.intStart) = size; // size
 	uint32_t* p = NULL;
-	*(start.intStart + 1) = (uintptr_t)p;
-	*(start.intStart + 2) = (uintptr_t)p;
-	*(start.intStart + 3) = 0; //0 - свободно
+	*(start.intStart + 1) = (uintptr_t)p; // next
+	*(start.intStart + 2) = (uintptr_t)p; // prev
+	*(start.intStart + 3) = 0; //0 - free
 	return 1;
 }
 void* memalloc(int size) {
 	void* pointer = NULL;
 	uint32_t* intHead = start.intStart;
 	while (!(*(intHead + 3) == 0 && *intHead >= size + FULLSIZE)) {
-		if ((uint32_t*)(*(intHead + 1)) == NULL) { // NEXT == NULL значит дальше свободных блоков нет
+		if ((uint32_t*)(*(intHead + 1)) == NULL) { // NEXT == NULL means no free blocks next
 			return NULL;
 		}
 		else {
@@ -33,22 +33,22 @@ void* memalloc(int size) {
 		}
 	}
 
-	if ((*intHead - size - FULLSIZE) > FULLSIZE) { //если ячейку можно разбить на 2
-		uint32_t* rightHead = (uint32_t*)((char*)intHead + size + FULLSIZE); //Указывает на правый добавленный блок
-		*rightHead = *intHead - size - FULLSIZE; //Размер правого блока
-		*(rightHead + 1) = (uintptr_t)(*(intHead + 1)); //next для правого = next для начального
+	if ((*intHead - size - FULLSIZE) > FULLSIZE) { //if can divide block by 2
+		uint32_t* rightHead = (uint32_t*)((char*)intHead + size + FULLSIZE); //pointer to added right block
+		*rightHead = *intHead - size - FULLSIZE; //size of first block
+		*(rightHead + 1) = (uintptr_t)(*(intHead + 1)); //next for right block = next for initital block
 		*(rightHead + 2) = (uintptr_t)intHead;
 		*(rightHead + 3) = 0;
 		if ((uint32_t*)(*(intHead + 1)) != NULL) {
-			*((uint32_t*)(*(rightHead + 1)) + 2) = (uintptr_t)rightHead; //У нас есть next элемент, поэтому ему задаем prev значение
+			*((uint32_t*)(*(rightHead + 1)) + 2) = (uintptr_t)rightHead; //element that is after right block has prev pointer on right block
 		}
 
 		*intHead = size + FULLSIZE;
 		*(intHead + 1) = (uintptr_t)rightHead;
-		// prev не трогаем
+		// prev doesnt change
 		*(intHead + 3) = 1;
 	}
-	else { //Если в блоке после аллоцирования нет места под еще 1 блок. Может появиться дырка
+	else { //if space only for 1 mem block. There may be 'hole'
 		*intHead = size + FULLSIZE;
 		*(intHead + 3) = 1;
 	}
@@ -59,11 +59,11 @@ void* memalloc(int size) {
 
 void memfree(void* p) {
 	uint32_t* intHead = (uint32_t*)p - 4;
-	*(intHead + 3) = 0; // Ячейка свободна
+	*(intHead + 3) = 0; 
 
 	uint32_t* leftHead = (uint32_t*)*(intHead + 2);
 	uint32_t* rightHead = (uint32_t*)*(intHead + 1);
-	//Можно слить с левым блоком
+	//Merge with left if free
 	if (leftHead != NULL && *(leftHead + 3) == 0) {
 		int size;
 
@@ -84,14 +84,14 @@ void memfree(void* p) {
 
 	rightHead = (uint32_t*)*(intHead + 1);
 
-	//Можно слить с правым блоком
+	//Merge with right if free
 	if (rightHead != NULL && *(rightHead + 3) == 0) {
 		if ((uint32_t*)(*(rightHead + 1)) != NULL) {
-			*((uint32_t*)(*(rightHead + 1)) + 2) = (uintptr_t)intHead; //Элемент после правого указывает теперь на левый как свой prev		
+			*((uint32_t*)(*(rightHead + 1)) + 2) = (uintptr_t)intHead; //element that is after right block has prev pointer on right block	
 		}
-		*(intHead + 1) = (uintptr_t) * (rightHead + 1); //next у головы теперь элемент после правого
+		*(intHead + 1) = (uintptr_t) * (rightHead + 1); //next of head is element that is after right block
 		int size;
-		if ((uint32_t) * (rightHead + 1) == NULL) {//Если правый блок = конец
+		if ((uint32_t) * (rightHead + 1) == NULL) {
 			size = abs((int)((char*)intHead - (char*)rightHead)) + *rightHead;
 		}
 		else {
@@ -101,7 +101,7 @@ void memfree(void* p) {
 		*intHead = size;
 	}
 
-	//Убрать дырку справа
+	//Remove right 'hole'
 	if (rightHead != NULL) {
 		int fullBlockSize = abs((int)((char*)intHead - (char*)rightHead));
 
@@ -109,7 +109,7 @@ void memfree(void* p) {
 			*intHead = fullBlockSize;
 		}
 	}
-	else { //Если наш блок конечный
+	else { 
 		int distance = abs((int)((char*)start.intStart - (char*)intHead)) + *(intHead);
 		if (distance < start.size) {
 			*intHead += start.size - distance;
