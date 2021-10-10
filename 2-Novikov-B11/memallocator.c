@@ -3,35 +3,33 @@
 //#include <cstdint>
 #include <inttypes.h>
 
-#define SIZE 12
 #define FULLSIZE 16
-typedef struct {
-	char* charHead;
-	uint32_t* intStart;
-}handler_t;
-handler_t start;
+
+uint32_t* startHead;
 
 
 
 int meminit(void* pMemory, int size) {
-	//Начальный дескриптр содержит размер, next = NULL и prev
-	start.intStart = (uint32_t*)pMemory;
-	*(start.intStart) = size;
+	//Начальный дескриптр содержит size, next = NULL, prev, isBusy = 0
+	startHead = (uint32_t*)pMemory;
+	*(startHead) = size;
 	uint32_t* p = NULL;
-	*(start.intStart + 1) = (uintptr_t)p;
-	*(start.intStart + 2) = (uintptr_t)p;
-	*(start.intStart + 3) = 0; //0 - свободно
+	*(startHead + 1) = (uintptr_t)p;
+	*(startHead + 2) = (uintptr_t)p;
+	*(startHead + 3) = 0; //0 - свободно
 	return 1;
 }
 void* memalloc(int size) {
 	void* pointer = NULL;
-	uint32_t* intHead = start.intStart;
+	uint32_t* intHead = startHead;
 	int inEnd = 0;
 	while (1) {
 		if (*(intHead + 3) == 0 && *intHead > size + FULLSIZE) {
 			if ((uint32_t*)(*(intHead + 1)) == NULL) { //Если вставляем в начало
-				if (*intHead < size + 2 * FULLSIZE) return NULL;
-				inEnd = 1;				
+				inEnd = 1;
+				if (*intHead < size + 2 * FULLSIZE) {
+					return NULL;
+				}								
 			}
 			break;
 		}
@@ -89,7 +87,7 @@ void memfree(void* p) {
 	//Можно слить с левым блоком
 	uint32_t* leftHead = (uint32_t*)*(intHead + 2);
 	if (leftHead != NULL && *(leftHead + 3) == 0) {
-		uint32_t* rightHead = (uint32_t*)*(intHead + 1); //У нас же всегла есть правый элемент, только у конечного дескриптора нету
+		uint32_t* rightHead = (uint32_t*)*(intHead + 1); //У нас же всегда есть правый элемент, только у конечного дескриптора нет
 		*(rightHead + 2) = (uintptr_t)leftHead;
 		*(leftHead + 1) = (uintptr_t)rightHead;
 
@@ -149,7 +147,7 @@ void memfree(void* p) {
 
 
 void memdone() {
-	uint32_t* intHead = start.intStart;
+	uint32_t* intHead = startHead;
 	int s = 0;
 	while (intHead != NULL) {
 		if (*(intHead + 3) == 0) {
