@@ -55,12 +55,7 @@ void _handle_error(error_t error) {
 }
 
 error_t ReadAdjacencyList() {
-	//queue_t* q = queueInit();
-	//queuePush(q, 1); queuePop(q); queuePush(q, 1);
-	//printf("%i", q->head->vertex);
-	//printf("%i", q->tail->vertex);
-	//if (q->head == NULL) { puts("yes"); }
-	//if (q->tail == NULL) { puts("yes2"); }
+
 	//FILE* file = fopen("test.txt", "r");
 	int vertexNum = 0;
 	if (fscanf(stdin, "%i", &vertexNum) == 0) {
@@ -80,9 +75,10 @@ error_t ReadAdjacencyList() {
 	char str[10];
 	int it = 0;//step of reading numner in one line
 	int curVertex;
-
+	int count = 0;
 	//while (fscanf(stdin, "%c", &c) == 1) {
-	while ((c = fgetc(stdin)) != EOF) {
+	while (count < vertexNum) {
+		c = fgetc(stdin);
 		if (c == '\n') {
 			if (it != 0) {
 				int vertex = atoi(str);
@@ -91,6 +87,7 @@ error_t ReadAdjacencyList() {
 			}
 			it = 0;
 			strcpy(str, "");
+			count++;
 		}
 		else if (isdigit(c)) {
 			char cToStr[2];
@@ -176,7 +173,10 @@ error_t BFSexec(int** adjMatr, int vertexNum) {
 
 
 	for (int i = 0; i < visitedPos; i++) {
-		fprintf(stdout,"%i ", visitedArr[i]);
+		fprintf(stdout,"%i", visitedArr[i]);
+		if (i != visitedPos - 1) {
+			fprintf(stdout, " ");
+		}
 	}
 	return NO_ERROR;
 }
