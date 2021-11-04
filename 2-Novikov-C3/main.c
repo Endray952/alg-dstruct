@@ -1,3 +1,4 @@
+#define _CRT_SECURE_NO_WARNINGS
 #include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>
@@ -13,11 +14,33 @@ typedef struct {
 	struct node_t* head;
 	struct node_t* tail;
 }queue_t;
+typedef struct {
+	struct node_t* start;
+}list_t;
 queue_t* queueInit() {
 	queue_t* queue = (queue_t*)malloc(sizeof(queue_t));
 	queue->head = NULL;
 	queue->tail = NULL;
 	return queue;
+}
+list_t* createList() {
+	list_t* list = malloc(sizeof(list_t));
+	list->start = NULL;
+	return list;
+}
+void listAdd(list_t* list, int data) {
+	node_t* newNode = malloc(sizeof(node_t));
+	if (list->start == NULL) {
+		list->start = newNode;
+	}
+	else {
+		node_t* node;
+		for (node = list->start; node->next != NULL; node = node->next);
+		node->next = newNode;
+	}
+	newNode->vertex = data;
+	newNode->next = NULL;
+	
 }
 void queuePush(queue_t* queue, int vertex) {
 	node_t* node = (node_t*)malloc(sizeof(node_t));
@@ -31,17 +54,36 @@ void queuePush(queue_t* queue, int vertex) {
 		queue->tail = node;
 	}
 }
-void queuePop(queue_t* queue) {
+//void queuePop(queue_t* queue) {
+//	if (queue->tail == queue->head) {
+//		queue->head = NULL;
+//	}
+//	node_t* tail = queue->tail;
+//	queue->tail = queue->tail->next;
+//	free(tail);
+//}
+int queueGet(queue_t* queue) {
+	if (queue->tail == NULL) {
+		return -1;
+	}
+	int elem = queue->tail->vertex;
 	if (queue->tail == queue->head) {
 		queue->head = NULL;
 	}
 	node_t* tail = queue->tail;
 	queue->tail = queue->tail->next;
 	free(tail);
+	return elem;
+}
+int queueIsEmpty(queue_t* queue) {
+	if (queue->head == NULL && queue->tail == NULL) {
+		return 1;
+	}
+	return 0;
 }
 
 
-void ReadAdjacencyList() {
+int** ReadAdjacencyList(int* _vertexNum) {
 
 	//FILE* file = fopen("test.txt", "r");
 	int vertexNum = 0;
@@ -92,49 +134,55 @@ void ReadAdjacencyList() {
 			}
 		}
 	}
-	BFSexec(adjMatr, vertexNum);
+
+
+	*_vertexNum = vertexNum;
+	return(adjMatr);
+	//BFSexec(adjMatr, vertexNum);
 	
 	
 }
-int notContain(int* arr, int size, int elem) {
-	for (int i = 0; i < size; i++) {
-		if (arr[i] == elem) {
+//int notContain(int* arr, int size, int elem) {
+//	for (int i = 0; i < size; i++) {
+//		if (arr[i] == elem) {
+//			return 0;
+//		}
+//	}
+//	return 1;
+//}
+int notContain(list_t* list, int elem) {
+	for (node_t* node = list->start; node!= NULL ; node = node->next) {
+		if (node->vertex == elem) {
 			return 0;
 		}
 	}
 	return 1;
 }
 void BFSexec(int** adjMatr, int vertexNum) {
-	for (int i = 0; i < vertexNum; i++) {
+	/*for (int i = 0; i < vertexNum; i++) {
 		for (int k = 0; k < vertexNum; k++) {
 			printf("%i  ", adjMatr[i][k]);
 		}puts("");
-	}
+	}*/
 
 
-	int* visitedArr = (int*)malloc(vertexNum * sizeof(int));
-	int visitedPos = 0;
+	//int* visitedArr = (int*)malloc(vertexNum * sizeof(int));
+	//int visitedPos = 0;
+	list_t* visitedArr = createList();
 	queue_t* toExplore = queueInit();
 	queuePush(toExplore, 0);
-	while (toExplore->head != NULL)
+	listAdd(visitedArr, 0);
+	while (!queueIsEmpty(toExplore))
 	{
-		int el = toExplore->tail->vertex;
-		queuePop(toExplore);
-		if (notContain(visitedArr, visitedPos + 1, el)) {
-			visitedArr[visitedPos] = el;
-			visitedPos++;
-			//printf("%i ", visitedArr[visitedPos]);
-		}
-		
+		int elem = queueGet(toExplore);				
 		for (int i = 0; i < vertexNum; ++i)
 		{
-			if (adjMatr[el][i] == 1 && notContain(visitedArr, visitedPos + 1, i))
+			if (adjMatr[elem][i] == 1 && notContain(visitedArr, i))
 			{
-
 				queuePush(toExplore, i);
+				listAdd(visitedArr, i);
 			}
-		}
-		//visitedPos++;
+		}	
 	}
 
 
@@ -207,16 +255,24 @@ void BFSexec(int** adjMatr, int vertexNum) {
 	//	}
 	//}
 
-
-
-	for (int i = 0; i < vertexNum; i++) {
-		fprintf(stdout,"%d ", visitedArr[i]);
+	for (node_t* node = visitedArr->start; node != NULL; node = node->next) {
+		fprintf(stdout, "%d ", node->vertex);
 	}
+
+	/*for (int i = 0; i < vertexNum; i++) {
+		fprintf(stdout,"%d ", visitedArr[i]);
+	}*/
 	
 }
 int main() {
-
-	ReadAdjacencyList();
 	
+	int* vertexNum = malloc(sizeof(int));
+	int** adjMatr = ReadAdjacencyList(vertexNum);
+	/*for (int i = 0; i < vertexNum; i++) {
+		for (int k = 0; k < vertexNum; k++) {
+			printf("%i  ", adjMatr[i][k]);
+		}puts("");
+	}*/
+	BFSexec(adjMatr, *vertexNum);
 	return 0;
 }
