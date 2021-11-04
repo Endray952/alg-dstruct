@@ -9,6 +9,8 @@ typedef enum {
 	SCANF_ERROR,
 	EMPTY_LIST
 }error_t;
+error_t BFSexec(int** adjMatr, int vertexNum);
+
 typedef struct node_t {
 	struct node_t* next;
 	int vertex;
@@ -18,12 +20,13 @@ typedef struct {
 	struct node_t* tail;
 }queue_t;
 queue_t* queueInit() {
-	queue_t* queue = malloc(sizeof(queue_t));
+	queue_t* queue = (queue_t*)malloc(sizeof(queue_t));
 	queue->head = NULL;
 	queue->tail = NULL;
+	return queue;
 }
 void queuePush(queue_t* queue, int vertex) {
-	node_t* node = malloc(sizeof(node_t));
+	node_t* node = (node_t*)malloc(sizeof(node_t));
 	node->next = NULL;
 	node->vertex = vertex;
 	if (queue->head != NULL) {
@@ -66,20 +69,20 @@ error_t ReadAdjacencyList() {
 	else if (vertexNum == 0) {
 		return EMPTY_LIST;
 	}
-	int** adjMatr = calloc(vertexNum, sizeof(int*));
+	int** adjMatr = (int**)calloc(vertexNum, sizeof(int*));
 	for (int i = 0; i < vertexNum; i++) {
-		adjMatr[i] = calloc(vertexNum, sizeof(int));
+		adjMatr[i] = (int*)calloc(vertexNum, sizeof(int));
 	}
 
-	printf("%i\n", vertexNum);
+	//printf("%i\n", vertexNum);
 
 	char c;
 	char str[10];
 	int it = 0;//step of reading numner in one line
 	int curVertex;
 
-	while (fscanf(stdin, "%c", &c) == 1) {
-
+	//while (fscanf(stdin, "%c", &c) == 1) {
+	while ((c = fgetc(stdin)) != EOF) {
 		if (c == '\n') {
 			if (it != 0) {
 				int vertex = atoi(str);
@@ -127,39 +130,62 @@ int notContain(int* arr, int size, int elem) {
 	return 1;
 }
 error_t BFSexec(int** adjMatr, int vertexNum) {
-	for (int i = 0; i < vertexNum; i++) {
+	/*for (int i = 0; i < vertexNum; i++) {
 		for (int k = 0; k < vertexNum; k++) {
 			printf("%i  ", adjMatr[i][k]);
 		}puts("");
-	}
-	int* visitedArr = malloc(vertexNum * sizeof(int));
+	}*/
+	int* visitedArr = (int*)malloc(vertexNum * sizeof(int));
 	int visitedPos = 0;
 	queue_t* toExplore = queueInit();
 	//visitedArr[visitedPos] = 0;
-	queuePush(toExplore, 0);
-	while (toExplore->head != NULL) {
-		for (int intersecElem = 0; intersecElem < vertexNum; intersecElem++) {
-			int elem = adjMatr[toExplore->tail->vertex][intersecElem];
-			int curVert = toExplore->tail->vertex;
-			if (adjMatr[toExplore->tail->vertex][intersecElem] == 1 && notContain(visitedArr, visitedPos + 1, intersecElem)) {
-				queuePush(toExplore, intersecElem);
-			}
+	while (visitedPos < vertexNum) {
+		if (visitedPos == 0) {
+			queuePush(toExplore, 0);
+			visitedArr[visitedPos] = 0;
 		}
-		visitedArr[visitedPos] = toExplore->tail->vertex;
+		else {
+			int i = 1;
+			while (!notContain(visitedArr, visitedPos + 1, i)) {
+				i++;
+			}
+			queuePush(toExplore, i);
+			visitedArr[visitedPos] = i;
+		}
 		visitedPos++;
-		queuePop(toExplore);
+		while (toExplore->head != NULL) {
+			for (int intersecElem = 0; intersecElem < vertexNum; intersecElem++) {
+				int elem = adjMatr[toExplore->tail->vertex][intersecElem];
+				int curVert = toExplore->tail->vertex;
+				if (adjMatr[toExplore->tail->vertex][intersecElem] == 1 && notContain(visitedArr, visitedPos + 1, intersecElem)) {
+					queuePush(toExplore, intersecElem);
+					int b = toExplore->head->vertex;
+					visitedArr[visitedPos] = toExplore->head->vertex;
+					visitedPos++;
+				}
+			}
+			/*for (int i = 0; i < visitedPos; i++) {
+				printf("%i ", visitedArr[i]);
+			}*/
+			/*visitedArr[visitedPos] = toExplore->tail->vertex;
+			visitedPos++;*/
+			queuePop(toExplore);
+		}
+	}
 
-	}
+
+
 	for (int i = 0; i < visitedPos; i++) {
-		printf("%i ", visitedArr[i]);
+		fprintf(stdout,"%i ", visitedArr[i]);
 	}
+	return NO_ERROR;
 }
 int main() {
 
 	error_t res = ReadAdjacencyList();
-	if (res != NO_ERROR) {
+	/*if (res != NO_ERROR) {
 		HandleError(res);
-	}
+	}*/
 	
 	return 0;
 }
