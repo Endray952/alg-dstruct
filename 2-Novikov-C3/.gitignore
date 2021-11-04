@@ -4,3 +4,4 @@
 *.vcxproj.user
 *.vs
 **/Debug
+*.txt

@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include <string.h>
+//#include "BFS.h"
 #define HandleError(error) _handle_error(error); return 0
 typedef enum {
 	NO_ERROR,
@@ -66,7 +67,7 @@ error_t ReadAdjacencyList() {
 	else if (vertexNum == 0) {
 		return EMPTY_LIST;
 	}
-	int** adjMatr = calloc(vertexNum, sizeof(int*));
+	int** adjMatr = calloc(vertexNum,sizeof(int*));
 	for (int i = 0; i < vertexNum; i++) {
 		adjMatr[i] = calloc(vertexNum, sizeof(int));
 	}
@@ -79,7 +80,7 @@ error_t ReadAdjacencyList() {
 	int curVertex;
 
 	while (fscanf(stdin, "%c", &c) == 1) {
-
+		
 		if (c == '\n') {
 			if (it != 0) {
 				int vertex = atoi(str);
@@ -87,7 +88,7 @@ error_t ReadAdjacencyList() {
 				adjMatr[vertex][curVertex] = 1;
 			}
 			it = 0;
-			strcpy(str, "");
+			strcpy(str,"");
 		}
 		else if (isdigit(c)) {
 			char cToStr[2];
@@ -112,7 +113,7 @@ error_t ReadAdjacencyList() {
 	/*for (int i = 0; i < vertexNum; i++) {
 		for (int k = 0; k < vertexNum; k++) {
 			printf("%i  ", adjMatr[i][k]);
-		}puts("");
+		}puts(""); 
 	}*/
 	BFSexec(adjMatr, vertexNum);
 	//printf("%i", vertexNum);
@@ -141,25 +142,16 @@ error_t BFSexec(int** adjMatr, int vertexNum) {
 		for (int intersecElem = 0; intersecElem < vertexNum; intersecElem++) {
 			int elem = adjMatr[toExplore->tail->vertex][intersecElem];
 			int curVert = toExplore->tail->vertex;
-			if (adjMatr[toExplore->tail->vertex][intersecElem] == 1 && notContain(visitedArr, visitedPos + 1, intersecElem)) {
+			if (adjMatr[toExplore->tail->vertex][intersecElem] == 1 && notContain(visitedArr, visitedPos+1, intersecElem)) {
 				queuePush(toExplore, intersecElem);
 			}
 		}
 		visitedArr[visitedPos] = toExplore->tail->vertex;
 		visitedPos++;
 		queuePop(toExplore);
-
+		
 	}
 	for (int i = 0; i < visitedPos; i++) {
 		printf("%i ", visitedArr[i]);
 	}
-}
-int main() {
-
-	error_t res = ReadAdjacencyList();
-	if (res != NO_ERROR) {
-		HandleError(res);
-	}
-	
-	return 0;
 }
