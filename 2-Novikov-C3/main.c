@@ -19,16 +19,12 @@
     LARGE_INTEGER t1,t2; \
     double elapsedTime; \
     QueryPerformanceFrequency(&frequency);
-
-
 /** Use to start the performance timer */
 #define TIMER_START QueryPerformanceCounter(&t1);
-
 /** Use to stop the performance timer */
 #define TIMER_STOP \
     QueryPerformanceCounter(&t2); \
     elapsedTime=(float)(t2.QuadPart-t1.QuadPart)/frequency.QuadPart; 
-
 typedef enum {
 	NO_E,
 	MALLOC_E,
@@ -86,7 +82,7 @@ void _listAdd(list_t* list, int data) {
 	}
 	newNode->vertex = data;
 	newNode->next = NULL;
-	
+
 }
 void _queuePush(queue_t* queue, int vertex) {
 	node_t* newNode = (node_t*)malloc(sizeof(node_t));
@@ -159,7 +155,7 @@ int** ReadAdjacencyList(int* _vertexNum, FILE* file) {
 	while (newLineNum <= vertexNum) {
 		c = fgetc(file);
 		if (c == '\n') {
-			if (vertexWasRead != 0) { 
+			if (vertexWasRead != 0) {
 				int vertex = atoi(str);
 				adjMatr[curVertex][vertex] = 1;
 				adjMatr[vertex][curVertex] = 1;
@@ -180,7 +176,7 @@ int** ReadAdjacencyList(int* _vertexNum, FILE* file) {
 				curVertex = atoi(str);
 				memset(str, '\0', sizeof(str));
 			}
-			else  {
+			else {
 				int vertex = atoi(str);
 				adjMatr[curVertex][vertex] = 1;
 				adjMatr[vertex][curVertex] = 1;
@@ -198,32 +194,32 @@ void BFSexec(int** adjMatr, int vertexNum) {
 	queuePush(toExplore, 0);
 	listAdd(visitedArr, 0);
 	TIMER_INIT
-	TIMER_START
-	while (!queueIsEmpty(toExplore))
-	{
-		int elem = queueGet(toExplore);				
-		for (int i = 0; i < vertexNum; i++)
+		TIMER_START
+		while (!queueIsEmpty(toExplore))
 		{
-			if (adjMatr[elem][i] == 1 && notContain(visitedArr, i))
+			int elem = queueGet(toExplore);
+			for (int i = 0; i < vertexNum; i++)
 			{
-				queuePush(toExplore, i);
-				listAdd(visitedArr, i);
+				if (adjMatr[elem][i] == 1 && notContain(visitedArr, i))
+				{
+					queuePush(toExplore, i);
+					listAdd(visitedArr, i);
+				}
 			}
-		}	
-	}
-	TIMER_STOP
-	if (STRESS_TEST) {
-		//fprintf(stdout, "%lf ", elapsedTime);
-	}
-	else {
-		for (node_t* node = visitedArr->start; node != NULL; node = node->next) {
-			fprintf(stdout, "%d ", node->vertex);
 		}
-	}
+	TIMER_STOP
+		if (STRESS_TEST) {
+			fprintf(stdout, "%lf ", elapsedTime);
+		}
+		else {
+			for (node_t* node = visitedArr->start; node != NULL; node = node->next) {
+				fprintf(stdout, "%d ", node->vertex);
+			}
+		}
 }
 /**
  * CPU: Intel(R) Core(TM) i7-6700K CPU 4.10GHz
- * RAM: 32Gb DDR4 2133 MHz 
+ * RAM: 32Gb DDR4 2133 MHz
  * SSD: SATA 3 read speed 545Mb/s Write Speed 465Mb/s
  *
  * Vertecies amount: 4000
