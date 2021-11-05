@@ -194,28 +194,28 @@ void BFSexec(int** adjMatr, int vertexNum) {
 	queuePush(toExplore, 0);
 	listAdd(visitedArr, 0);
 	TIMER_INIT
-		TIMER_START
-		while (!queueIsEmpty(toExplore))
+	TIMER_START
+	while (!queueIsEmpty(toExplore))
+	{
+		int elem = queueGet(toExplore);
+		for (int i = 0; i < vertexNum; i++)
 		{
-			int elem = queueGet(toExplore);
-			for (int i = 0; i < vertexNum; i++)
+			if (adjMatr[elem][i] == 1 && notContain(visitedArr, i))
 			{
-				if (adjMatr[elem][i] == 1 && notContain(visitedArr, i))
-				{
-					queuePush(toExplore, i);
-					listAdd(visitedArr, i);
-				}
+				queuePush(toExplore, i);
+				listAdd(visitedArr, i);
 			}
 		}
+	}
 	TIMER_STOP
-		if (STRESS_TEST) {
-			fprintf(stdout, "%lf ", elapsedTime);
+	if (STRESS_TEST) {
+		fprintf(stdout, "%lf ", elapsedTime);
+	}
+	else {
+		for (node_t* node = visitedArr->start; node != NULL; node = node->next) {
+			fprintf(stdout, "%d ", node->vertex);
 		}
-		else {
-			for (node_t* node = visitedArr->start; node != NULL; node = node->next) {
-				fprintf(stdout, "%d ", node->vertex);
-			}
-		}
+	}
 }
 /**
  * CPU: Intel(R) Core(TM) i7-6700K CPU 4.10GHz
