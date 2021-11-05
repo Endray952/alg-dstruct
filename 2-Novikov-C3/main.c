@@ -5,7 +5,6 @@
 #include <string.h>
 
 void BFSexec(int** adjMatr, int vertexNum);
-
 typedef struct node_t {
 	struct node_t* next;
 	int vertex;
@@ -83,65 +82,65 @@ int queueIsEmpty(queue_t* queue) {
 }
 
 
-int** ReadAdjacencyList(int* _vertexNum) {
-
-	//FILE* file = fopen("test.txt", "r");
-	int vertexNum = 0;
-	fscanf(stdin, "%i", &vertexNum);
-
-	int** adjMatr = (int**)calloc(vertexNum, sizeof(int*));
-	for (int i = 0; i < vertexNum; i++) {
-		adjMatr[i] = (int*)calloc(vertexNum, sizeof(int));
-	}
-
-	//printf("%i\n", vertexNum);
-
-	char c;
-	char str[10];
-	int it = 0;//step of reading numner in one line
-	int curVertex;
-	int newLineNum = 0;
-	//while (fscanf(stdin, "%c", &c) == 1) {
-	while (newLineNum <= vertexNum) {
-		c = fgetc(stdin);
-		if (c == '\n') {
-			if (it != 0) {
-				int vertex = atoi(str);
-				adjMatr[curVertex][vertex] = 1;
-				adjMatr[vertex][curVertex] = 1;
-			}
-			it = 0;
-			strcpy(str, "");
-			newLineNum++;
-		}
-		else if (isdigit(c)) {
-			char cToStr[2];
-			cToStr[0] = c;
-			cToStr[1] = '\0';
-			strcat(str, cToStr);
-		}
-		else {
-			if (it == 0) {
-				it++;
-				curVertex = atoi(str);
-				strcpy(str, "");
-			}
-			else {
-				int vertex = atoi(str);
-				adjMatr[curVertex][vertex] = 1;
-				adjMatr[vertex][curVertex] = 1;
-				strcpy(str, "");
-			}
-		}
-	}
-
-
-	*_vertexNum = vertexNum;
-	return(adjMatr);
-	//BFSexec(adjMatr, vertexNum);
-	
-	
-}
+//int** ReadAdjacencyList(int* _vertexNum) {
+//
+//	//FILE* file = fopen("test.txt", "r");
+//	int vertexNum = 0;
+//	fscanf(stdin, "%i", &vertexNum);
+//
+//	int** adjMatr = (int**)calloc(vertexNum, sizeof(int*));
+//	for (int i = 0; i < vertexNum; i++) {
+//		adjMatr[i] = (int*)calloc(vertexNum, sizeof(int));
+//	}
+//
+//	//printf("%i\n", vertexNum);
+//
+//	char c;
+//	char str[10];
+//	int it = 0;//step of reading numner in one line
+//	int curVertex;
+//	int newLineNum = 0;
+//	//while (fscanf(stdin, "%c", &c) == 1) {
+//	while (newLineNum <= vertexNum) {
+//		c = fgetc(stdin);
+//		if (c == '\n') {
+//			if (it != 0) {
+//				int vertex = atoi(str);
+//				adjMatr[curVertex][vertex] = 1;
+//				adjMatr[vertex][curVertex] = 1;
+//			}
+//			it = 0;
+//			strcpy(str, "");
+//			newLineNum++;
+//		}
+//		else if (isdigit(c)) {
+//			char cToStr[2];
+//			cToStr[0] = c;
+//			cToStr[1] = '\0';
+//			strcat(str, cToStr);
+//		}
+//		else {
+//			if (it == 0) {
+//				it++;
+//				curVertex = atoi(str);
+//				strcpy(str, "");
+//			}
+//			else {
+//				int vertex = atoi(str);
+//				adjMatr[curVertex][vertex] = 1;
+//				adjMatr[vertex][curVertex] = 1;
+//				strcpy(str, "");
+//			}
+//		}
+//	}
+//
+//
+//	*_vertexNum = vertexNum;
+//	return(adjMatr);
+//	//BFSexec(adjMatr, vertexNum);
+//	
+//	
+//}
 //int notContain(int* arr, int size, int elem) {
 //	for (int i = 0; i < size; i++) {
 //		if (arr[i] == elem) {
@@ -150,6 +149,101 @@ int** ReadAdjacencyList(int* _vertexNum) {
 //	}
 //	return 1;
 //}
+#define TRUE 1
+#define FALSE 0
+char** grafMatrix = NULL;
+int* way = NULL;
+char* check = NULL;
+int nPoints = 0;
+
+void FillInMatrix(FILE* flow);
+
+int SystemInit(FILE* flow)
+{
+	fscanf(flow, "%d", &nPoints);
+
+	if (nPoints == 0)
+	{
+		return 1;
+	}
+
+	grafMatrix = (char**)calloc(nPoints, sizeof(char*));
+	way = (int*)calloc(nPoints, sizeof(int));
+	check = (char*)calloc(nPoints, sizeof(char));
+
+	if ((grafMatrix == NULL) || (way == NULL) || (check == NULL))
+	{
+		return 2;
+	}
+
+	way[0] = 0;
+	check[0] = TRUE;
+
+	for (int i = 0; i < nPoints; i++)
+	{
+		grafMatrix[i] = (char*)calloc(nPoints, sizeof(char));
+
+		if (grafMatrix[i] == NULL)
+		{
+			return 2;
+		}
+	}
+
+	FillInMatrix(flow);
+
+	return 0;
+}
+
+void FillInMatrix(FILE* flow)
+{
+	int count = -1;
+	int curVert = -1;
+	int i = 0;
+	char number[6] = { 0 };
+
+	while (count < nPoints)
+	{
+		char sym = fgetc(flow);
+
+		if ((sym == ' ') || (sym == '\n'))
+		{
+			if (i != 0)
+			{
+				number[i] = '\0';
+
+				if (curVert == -1)
+				{
+					curVert = atoi(number);
+				}
+				else
+				{
+					int vertex = atoi(number);
+					grafMatrix[curVert][vertex] = TRUE;
+					grafMatrix[vertex][curVert] = TRUE;
+				}
+
+			}
+
+			if (sym == '\n')
+			{
+				count++;
+				curVert = -1;
+			}
+			memset(number, '\0', sizeof(number));
+			i = 0;
+		}
+		if ((sym != ' ') && (sym != '\n'))
+		{
+			number[i] = sym;
+			i++;
+		}
+	}
+	
+}
+
+
+
+
 int notContain(list_t* list, int elem) {
 	for (node_t* node = list->start; node!= NULL ; node = node->next) {
 		if (node->vertex == elem) {
@@ -164,7 +258,11 @@ void BFSexec(int** adjMatr, int vertexNum) {
 			printf("%i  ", adjMatr[i][k]);
 		}puts("");
 	}*/
-
+	/*for (int i = 0; i < nPoints; i++) {
+		for (int k = 0; k < nPoints; k++) {
+			printf("%i  ", grafMatrix[i][k]);
+		}puts("");
+	}*/
 
 	//int* visitedArr = (int*)malloc(vertexNum * sizeof(int));
 	//int visitedPos = 0;
@@ -177,7 +275,7 @@ void BFSexec(int** adjMatr, int vertexNum) {
 		int elem = queueGet(toExplore);				
 		for (int i = 0; i < vertexNum; ++i)
 		{
-			if (adjMatr[elem][i] == 1 && notContain(visitedArr, i))
+			if (grafMatrix[elem][i] == 1 && notContain(visitedArr, i))
 			{
 				queuePush(toExplore, i);
 				listAdd(visitedArr, i);
@@ -267,12 +365,14 @@ void BFSexec(int** adjMatr, int vertexNum) {
 int main() {
 	
 	int* vertexNum = malloc(sizeof(int));
-	int** adjMatr = ReadAdjacencyList(vertexNum);
+	//int** adjMatr = ReadAdjacencyList(vertexNum);
 	/*for (int i = 0; i < vertexNum; i++) {
 		for (int k = 0; k < vertexNum; k++) {
 			printf("%i  ", adjMatr[i][k]);
 		}puts("");
 	}*/
-	BFSexec(adjMatr, *vertexNum);
+	//BFSexec(adjMatr, *vertexNum);
+	SystemInit(stdin);
+	BFSexec(grafMatrix, nPoints);
 	return 0;
 }
