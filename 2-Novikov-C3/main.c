@@ -3,22 +3,42 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include <string.h>
-#define error_check if(error != NO_ERROR)  return NULL
+#include <windows.h>
+#define error_check if(error != NO_E)  return NULL
 #define queueInit _queueInit(); error_check
 #define createList _createList(); error_check
 #define listAdd(list, data) _listAdd(list, data); error_check
 #define queuePush(queue, vertex) _queuePush(queue, vertex); error_check
 #define queueGet(queue) _queueGet(queue); error_check
+#define STRESS_TEST 1
+#define TEST_VERTEX_NUM 4000
+/** Use to init the clock */
+#define TIMER_INIT \
+    LARGE_INTEGER frequency; \
+    LARGE_INTEGER t1,t2; \
+    double elapsedTime; \
+    QueryPerformanceFrequency(&frequency);
+
+
+/** Use to start the performance timer */
+#define TIMER_START QueryPerformanceCounter(&t1);
+
+/** Use to stop the performance timer */
+#define TIMER_STOP \
+    QueryPerformanceCounter(&t2); \
+    elapsedTime=(float)(t2.QuadPart-t1.QuadPart)/frequency.QuadPart; 
+
 typedef enum {
-	NO_ERROR,
+	NO_E,
 	MALLOC_E,
 	EMPTY_LIST,
 	CREATE_LIST_E,
 	CREATE_QUEUE_E,
 	EMPTY_QUEUE_GET_E
 }error_t;
-error_t error = NO_ERROR;
+error_t error = NO_E;
 void BFSexec(int** adjMatr, int vertexNum);
+void createTestGraph();
 typedef struct node_t {
 	struct node_t* next;
 	int vertex;
@@ -112,9 +132,9 @@ int notContain(list_t* list, int elem) {
 	return 1;
 }
 
-int** ReadAdjacencyList(int* _vertexNum) {
+int** ReadAdjacencyList(int* _vertexNum, FILE* file) {
 	int vertexNum = 0;
-	if (fscanf(stdin, "%i", &vertexNum) != 1) {
+	if (fscanf(file, "%i", &vertexNum) != 1) {
 		error = EMPTY_LIST;
 		return NULL;
 	}
@@ -136,7 +156,7 @@ int** ReadAdjacencyList(int* _vertexNum) {
 	int curVertex = 0;
 	int newLineNum = 0;
 	while (newLineNum <= vertexNum) {
-		c = fgetc(stdin);
+		c = fgetc(file);
 		if (c == '\n') {
 			if (vertexWasRead != 0) { 
 				int vertex = atoi(str);
@@ -176,6 +196,8 @@ void BFSexec(int** adjMatr, int vertexNum) {
 	queue_t* toExplore = queueInit;
 	queuePush(toExplore, 0);
 	listAdd(visitedArr, 0);
+	TIMER_INIT
+	TIMER_START
 	while (!queueIsEmpty(toExplore))
 	{
 		int elem = queueGet(toExplore);				
@@ -188,21 +210,69 @@ void BFSexec(int** adjMatr, int vertexNum) {
 			}
 		}	
 	}
-
-	for (node_t* node = visitedArr->start; node != NULL; node = node->next) {
-		fprintf(stdout, "%d ", node->vertex);
-	}	
-}
-
-int main() {
-	int* vertexNum = malloc(sizeof(int));
-	if (vertexNum == NULL) {
-		error = MALLOC_E;
-		return;
+	TIMER_STOP
+	if (STRESS_TEST) {
+		fprintf(stdout, "%lf ", elapsedTime);
 	}
-	int** adjMatr = ReadAdjacencyList(vertexNum);
-	error_check;
-	BFSexec(adjMatr, *vertexNum);
-	error_check;
+	else {
+		for (node_t* node = visitedArr->start; node != NULL; node = node->next) {
+			fprintf(stdout, "%d ", node->vertex);
+		}
+	}
+}
+/**
+ * CPU: Intel(R) Core(TM) i7-6700K CPU 4.10GHz
+ * RAM: 32Gb DDR4 2133 MHz 
+ * SSD: SATA 3 read speed 545Mb/s Write Speed 465Mb/s
+ *
+ * Vertecies amount: 4000
+ *
+ * Stress Test results:
+ *     Memory used: 64.3 MB
+ *
+ *	   BFS execution time: 82.95 seconds
+ */
+int main() {
+	if (!STRESS_TEST) {
+		int* vertexNum = malloc(sizeof(int));
+		if (vertexNum == NULL) {
+			error = MALLOC_E;
+			return;
+		}
+		int** adjMatr = ReadAdjacencyList(vertexNum, stdin);
+		error_check;
+		BFSexec(adjMatr, *vertexNum);
+		error_check;
+	}
+	else {
+		createTestGraph();
+		int* vertexNum = malloc(sizeof(int));
+		if (vertexNum == NULL) {
+			error = MALLOC_E;
+			return;
+		}
+		FILE* file = fopen("test.txt", "r");
+		int** adjMatr = ReadAdjacencyList(vertexNum, file);
+		error_check;
+		BFSexec(adjMatr, *vertexNum);
+		error_check;
+		fclose(file);
+	}
 	return 0;
+}
+void createTestGraph() {
+	srand(time(NULL));
+	FILE* file = fopen("test.txt", "w");
+	fprintf(file, "%i\n", TEST_VERTEX_NUM);
+	for (int i = 0; i < TEST_VERTEX_NUM; i++) {
+		fprintf(file, "%i ", i);
+		for (int k = i + 1; k < TEST_VERTEX_NUM; k++) {
+			if ((rand() % 2) == 1) {
+				fprintf(file, "%i ", k);
+			}
+
+		}
+		fprintf(file, "\n");
+	}
+	fclose(file);
 }
