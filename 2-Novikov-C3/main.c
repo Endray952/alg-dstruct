@@ -4,13 +4,14 @@
 #include <ctype.h>
 #include <string.h>
 #include <windows.h>
-#define error_check if(error != NO_E)  return NULL
+#include <time.h>
+#define error_check if(error != NO_E)  return
 #define queueInit _queueInit(); error_check
 #define createList _createList(); error_check
 #define listAdd(list, data) _listAdd(list, data); error_check
 #define queuePush(queue, vertex) _queuePush(queue, vertex); error_check
 #define queueGet(queue) _queueGet(queue); error_check
-#define STRESS_TEST 1
+#define STRESS_TEST 0
 #define TEST_VERTEX_NUM 4000
 /** Use to init the clock */
 #define TIMER_INIT \
@@ -212,7 +213,7 @@ void BFSexec(int** adjMatr, int vertexNum) {
 	}
 	TIMER_STOP
 	if (STRESS_TEST) {
-		fprintf(stdout, "%lf ", elapsedTime);
+		//fprintf(stdout, "%lf ", elapsedTime);
 	}
 	else {
 		for (node_t* node = visitedArr->start; node != NULL; node = node->next) {
