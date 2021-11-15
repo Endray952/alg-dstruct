@@ -11,8 +11,8 @@
 #define listAdd(list, data) _listAdd(list, data); error_check
 #define queuePush(queue, vertex) _queuePush(queue, vertex); error_check
 #define queueGet(queue) _queueGet(queue); error_check
-#define STRESS_TEST 0
-#define TEST_VERTEX_NUM 4000
+#define STRESS_TEST 1
+#define TEST_VERTEX_NUM 20000
 /** Use to init the clock */
 #define TIMER_INIT \
     LARGE_INTEGER frequency; \
@@ -189,6 +189,8 @@ int** ReadAdjacencyList(int* _vertexNum, FILE* file) {
 }
 
 void BFSexec(int** adjMatr, int vertexNum) {
+	int* isVisited = calloc(TEST_VERTEX_NUM, sizeof(int));
+	isVisited[0] = 1;
 	list_t* visitedArr = createList;
 	queue_t* toExplore = queueInit;
 	queuePush(toExplore, 0);
@@ -200,8 +202,9 @@ void BFSexec(int** adjMatr, int vertexNum) {
 		int elem = queueGet(toExplore);
 		for (int i = 0; i < vertexNum; i++)
 		{
-			if (adjMatr[elem][i] == 1 && notContain(visitedArr, i))
+			if (adjMatr[elem][i] == 1 && isVisited[i] == 0)
 			{
+				isVisited[i] = 1;
 				queuePush(toExplore, i);
 				listAdd(visitedArr, i);
 			}
@@ -222,12 +225,12 @@ void BFSexec(int** adjMatr, int vertexNum) {
  * RAM: 32Gb DDR4 2133 MHz
  * SSD: SATA 3 read speed 545Mb/s Write Speed 465Mb/s
  *
- * Vertecies amount: 4000
+ * Vertecies amount: 20000
  *
  * Stress Test results:
- *     Memory used: 64.3 MB
+ *     Memory used: 1.5Gb
  *
- *	   BFS execution time: 82.95 seconds
+ *	   BFS execution time: 3.6 seconds
  */
 int main() {
 	if (!STRESS_TEST) {
