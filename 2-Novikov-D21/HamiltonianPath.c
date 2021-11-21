@@ -5,6 +5,8 @@
 #include <stdlib.h>
 #include "Stack.h"
 #define NO_HAMILTONIAN 0
+#define TEST_VERTEX_NUM 13
+#define CONSOLE_OUTPUT 0
 int* visited;
 stack_t* visitOrder;
 int visitedVertNum = 0;
@@ -140,28 +142,94 @@ void FindHamiltonianPath() {
 
 	//Check if graph is connected or graph has 3 or more vertexes
 	//that connect with only one vertex, so there can't be Hamiltonian path
+	FILE* output = fopen("output.txt", "w");
+	if (output == NULL) {
+		fprintf(stderr, "%s", "open file error");
+		fclose(output);
+		return;
+	}
 	if (CheckAdjMatr() == NO_HAMILTONIAN) {
-		printf("%i", 0);
+		fprintf(output, "%i", 0);
+		if (CONSOLE_OUTPUT) {
+			printf("%i", 0);
+		}
+		fclose(output);
 		return;
 	}
 
 	//Start algorithm
 	HamiltonianPath(0);
 
-	FILE* output = fopen("output.txt", "w");
-	if (output == NULL) {
-		fprintf(stderr, "%s", "open file error");
-		return;
-	}
 	if (visitedVertNum == 0) {
-		printf("%i\n", 0);
+		if (CONSOLE_OUTPUT) {
+			printf("%i\n", 0);
+		}
 		fprintf(output, "%i", 0);
 	}
 	else {
 		for (int k = 0; k < vertexNum; k++) {
-			printf("%i ", visitOrder->arr[k] + 1);
+			if (CONSOLE_OUTPUT) {
+				printf("%i ", visitOrder->arr[k] + 1);
+			}			
 			fprintf(output, "%i ", visitOrder->arr[k] + 1);
 		}
 	}
 	fclose(output);
+}
+void CreateRndHamiltonPath() {
+	//Using Dirac condition: if degree of every vertex >= n/2 then it's hamiltonian path
+	srand(time(NULL));
+	FILE* file = fopen("input.txt", "w");
+	if (file == NULL) {
+		fprintf(stderr, "%s", "open file error");
+		return;
+	}
+	int** adjMatr = (int**)calloc(TEST_VERTEX_NUM, sizeof(int*));
+	if (adjMatr == NULL) {
+		return NULL;
+	}
+	for (int i = 0; i < TEST_VERTEX_NUM; i++) {
+		adjMatr[i] = (int*)calloc(TEST_VERTEX_NUM, sizeof(int));
+		if (adjMatr[i] == NULL) {
+			fprintf(stderr, "%s", "malloc error");
+			return NULL;
+		}
+	}
+	fprintf(file, "%i\n", TEST_VERTEX_NUM);
+	for (int i = 0; i < TEST_VERTEX_NUM; i++) {
+		fprintf(file, "%i ", i + 1);
+		for (int k = i + 1; k < TEST_VERTEX_NUM; k++) {
+			if ((rand() % 2) == 1) {
+				adjMatr[i][k] = 1;
+				adjMatr[k][i] = 1;
+			}
+		}
+		int n = 0;
+		for (int j = 0; j < TEST_VERTEX_NUM; j++) {
+			if (adjMatr[i][j] == 1) {
+				n++;
+			}
+		}
+		while (n < TEST_VERTEX_NUM / 2) {
+			int rnd = rand() % TEST_VERTEX_NUM;
+			if (adjMatr[i][rnd] == 0 && rnd != i) {
+				adjMatr[i][rnd] = 1;
+				adjMatr[rnd][i] = 1;
+				n++;
+			}
+		}
+		for (int j = i + 1; j < TEST_VERTEX_NUM; j++) {
+			if (adjMatr[i][j] == 1) {
+				fprintf(file, "%i ", j + 1);
+			}
+
+		}
+		fprintf(file, "\n");
+	}
+
+	for (int i = 0; i < TEST_VERTEX_NUM; i++) {
+		free(adjMatr[i]);
+	}
+	free(adjMatr);
+	fclose(file);
 }
