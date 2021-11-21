@@ -4,7 +4,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <time.h>
-#define TEST_VERTEX_NUM 13
+#define TEST_VERTEX_NUM 30
 void CreateRndHamiltonPath();
 typedef struct {
 	int* arr;
@@ -79,16 +79,37 @@ void ReadAdjacencyList(FILE* file) {
 				memset(str, '\0', sizeof(str));
 			}
 			else {
-				//if (str[0] != '\0') {
+				if (str[0] != '\0') {
 					int vertex = atoi(str) - 1;
 					adjMatr[curVertex][vertex] = 1;
 					adjMatr[vertex][curVertex] = 1;
 					memset(str, '\0', sizeof(str));
-				//}
+				}
 			}
 		}
 	
 	}
+}
+int checkMatr() {
+	int endVertexNum = 0;
+	for (int i = 0; i < vertexNum; i++){
+		int intersecNum = 0;
+		for (int k = 0; k < vertexNum; k++){
+			if (adjMatr[i][k] == 1) {
+				intersecNum++;
+			}
+		}
+		if (intersecNum == 0) {
+			return -1;
+		}
+		else if (intersecNum == 1) {
+			endVertexNum++;
+			if (endVertexNum > 2) {
+				return -1;
+			}
+		}
+	}
+	return 1;
 }
 void HasHamiltonPath(int curVert) {
 	visitedVertNum++;
@@ -113,6 +134,74 @@ void HasHamiltonPath(int curVert) {
 		HasHamiltonPath(curVert + 1);
 	}
 }
+void StartHanilton() {
+	if (checkMatr() == -1) {
+		visitedVertNum = -1;
+		return;
+	}
+	HasHamiltonPath(0);
+}
+//int Hamiltonian_path()
+//{
+//	//int dp[vertexNum][(1 << vertexNum)];
+//	int** dp = malloc(vertexNum * sizeof(int*));
+//	for (int i = 0; i < vertexNum; i++){
+//		dp[i] = malloc((1 << vertexNum) * sizeof(int));
+//		//dp[i] = calloc(pow(2,15), sizeof(int));
+//		for (int k = 0; k < (1 << vertexNum); k++)
+//		{
+//			dp[i][k] = 0;
+//		}
+//	}
+//	// Initialize the table
+//	//memset(dp, 0, sizeof(dp));
+//
+//	// Set all dp[i][(1 << i)] to
+//	// true
+//	for (int i = 0; i < vertexNum; i++)
+//		dp[i][(1 << i)] = 1;
+//
+//	// Iterate over each subset
+//	// of nodes
+//	for (int i = 0; i < (1 << vertexNum); i++) {
+//
+//		for (int j = 0; j < vertexNum; j++) {
+//
+//			// If the jth nodes is included
+//			// in the current subset
+//			if (i & (1 << j)) {
+//
+//				// Find K, neighbour of j
+//				// also present in the
+//				// current subset
+//				for (int k = 0; k < vertexNum; k++) {
+//
+//					if (i & (1 << k)
+//						&& adjMatr[k][j]
+//						&& j != k
+//						&& dp[k][i ^ (1 << j)]) {
+//
+//						// Update dp[j][i]
+//						// to true
+//						dp[j][i] = 1;
+//						break;
+//					}
+//				}
+//			}
+//		}
+//	}
+//
+//	// Traverse the vertices
+//	for (int i = 0; i < vertexNum; i++) {
+//
+//		// Hamiltonian Path exists
+//		if (dp[i][(1 << vertexNum) - 1])
+//			return 1;
+//	}
+//
+//	// Otherwise, return false
+//	return 0;
+//}
 int main() {
 	//CreateRndHamiltonPath();
 	FILE* input = fopen("input.txt", "r");
@@ -129,12 +218,23 @@ int main() {
 	}
 
 	//method
-	HasHamiltonPath(0);
+	//HasHamiltonPath(0);
+	StartHanilton();
+	/*if (Hamiltonian_path()) {
+		puts("yes");
+	}
+	else {
+		puts("no");
+	}*/
+
 	FILE* output = fopen("output.txt", "w");
 	puts("");
 	if (visitedVertNum == 0) {
 		printf("%i \n", 0);
 		fprintf(output, "%i", 0);
+	}
+	else if (visitedVertNum == -1) {
+		puts("lel");
 	}
 	else {
 		for (int k = 0; k < vertexNum; k++) {
