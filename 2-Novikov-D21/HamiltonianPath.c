@@ -4,8 +4,18 @@
 #include <string.h>
 #include <stdlib.h>
 #include "Stack.h"
+#include <Windows.h>
+#include "HamiltonianPath.h"
+#define TIMER_INIT \
+    LARGE_INTEGER frequency; \
+    LARGE_INTEGER t1,t2; \
+    double elapsedTime; \
+    QueryPerformanceFrequency(&frequency)
+#define TIMER_START QueryPerformanceCounter(&t1)
+#define TIMER_STOP \
+    QueryPerformanceCounter(&t2); \
+    elapsedTime=(float)(t2.QuadPart-t1.QuadPart)/frequency.QuadPart
 #define NO_HAMILTONIAN 0
-#define TEST_VERTEX_NUM 13
 #define CONSOLE_OUTPUT 0
 int* visited;
 stack_t* visitOrder;
@@ -123,7 +133,7 @@ void HamiltonianPath(int curVert) {
 		HamiltonianPath(curVert + 1);
 	}
 }
-void FindHamiltonianPath() {
+void FindHamiltonianPath(int test) {
 	FILE* input = fopen("input.txt", "r");
 	if (input == NULL) {
 		fprintf(stderr, "%s", "open file error");
@@ -140,7 +150,7 @@ void FindHamiltonianPath() {
 		return;
 	}
 
-	//Check if graph is connected or graph has 3 or more vertexes
+	//Check if graph has abandoned vertex or graph has 3 or more vertexes
 	//that connect with only one vertex, so there can't be Hamiltonian path
 	FILE* output = fopen("output.txt", "w");
 	if (output == NULL) {
@@ -148,6 +158,9 @@ void FindHamiltonianPath() {
 		fclose(output);
 		return;
 	}
+	TIMER_INIT;
+	//algorith
+	TIMER_START;
 	if (CheckAdjMatr() == NO_HAMILTONIAN) {
 		fprintf(output, "%i", 0);
 		if (CONSOLE_OUTPUT) {
@@ -156,10 +169,12 @@ void FindHamiltonianPath() {
 		fclose(output);
 		return;
 	}
-
-	//Start algorithm
 	HamiltonianPath(0);
+	TIMER_STOP;
 
+	if (test) {
+		printf("Execution time: %f\n", elapsedTime);
+	}
 	if (visitedVertNum == 0) {
 		if (CONSOLE_OUTPUT) {
 			printf("%i\n", 0);
@@ -176,7 +191,64 @@ void FindHamiltonianPath() {
 	}
 	fclose(output);
 }
-void CreateRndHamiltonPath() {
+//void CreateRndHamiltonPath() {
+//	//Using Dirac condition: if degree of every vertex >= n/2 then it's hamiltonian path
+//	srand(time(NULL));
+//	FILE* file = fopen("input.txt", "w");
+//	if (file == NULL) {
+//		fprintf(stderr, "%s", "open file error");
+//		return;
+//	}
+//	int** adjMatr = (int**)calloc(TEST_VERTEX_NUM, sizeof(int*));
+//	if (adjMatr == NULL) {
+//		return NULL;
+//	}
+//	for (int i = 0; i < TEST_VERTEX_NUM; i++) {
+//		adjMatr[i] = (int*)calloc(TEST_VERTEX_NUM, sizeof(int));
+//		if (adjMatr[i] == NULL) {
+//			fprintf(stderr, "%s", "malloc error");
+//			return NULL;
+//		}
+//	}
+//	fprintf(file, "%i\n", TEST_VERTEX_NUM);
+//	for (int i = 0; i < TEST_VERTEX_NUM; i++) {
+//		fprintf(file, "%i ", i + 1);
+//		for (int k = i + 1; k < TEST_VERTEX_NUM; k++) {
+//			if ((rand() % 2) == 1) {
+//				adjMatr[i][k] = 1;
+//				adjMatr[k][i] = 1;
+//			}
+//		}
+//		int n = 0;
+//		for (int j = 0; j < TEST_VERTEX_NUM; j++) {
+//			if (adjMatr[i][j] == 1) {
+//				n++;
+//			}
+//		}
+//		while (n < TEST_VERTEX_NUM / 2) {
+//			int rnd = rand() % TEST_VERTEX_NUM;
+//			if (adjMatr[i][rnd] == 0 && rnd != i) {
+//				adjMatr[i][rnd] = 1;
+//				adjMatr[rnd][i] = 1;
+//				n++;
+//			}
+//		}
+//		for (int j = i + 1; j < TEST_VERTEX_NUM; j++) {
+//			if (adjMatr[i][j] == 1) {
+//				fprintf(file, "%i ", j + 1);
+//			}
+//
+//		}
+//		fprintf(file, "\n");
+//	}
+//
+//	for (int i = 0; i < TEST_VERTEX_NUM; i++) {
+//		free(adjMatr[i]);
+//	}
+//	free(adjMatr);
+//	fclose(file);
+//}
+void CreateRndHamiltonPath(int size_to_write, int real_size) {
 	//Using Dirac condition: if degree of every vertex >= n/2 then it's hamiltonian path
 	srand(time(NULL));
 	FILE* file = fopen("input.txt", "w");
@@ -184,41 +256,41 @@ void CreateRndHamiltonPath() {
 		fprintf(stderr, "%s", "open file error");
 		return;
 	}
-	int** adjMatr = (int**)calloc(TEST_VERTEX_NUM, sizeof(int*));
+	int** adjMatr = (int**)calloc(real_size, sizeof(int*));
 	if (adjMatr == NULL) {
 		return NULL;
 	}
-	for (int i = 0; i < TEST_VERTEX_NUM; i++) {
-		adjMatr[i] = (int*)calloc(TEST_VERTEX_NUM, sizeof(int));
+	for (int i = 0; i < real_size; i++) {
+		adjMatr[i] = (int*)calloc(real_size, sizeof(int));
 		if (adjMatr[i] == NULL) {
 			fprintf(stderr, "%s", "malloc error");
 			return NULL;
 		}
 	}
-	fprintf(file, "%i\n", TEST_VERTEX_NUM);
-	for (int i = 0; i < TEST_VERTEX_NUM; i++) {
+	fprintf(file, "%i\n", size_to_write);
+	for (int i = 0; i < real_size; i++) {
 		fprintf(file, "%i ", i + 1);
-		for (int k = i + 1; k < TEST_VERTEX_NUM; k++) {
+		for (int k = i + 1; k < real_size; k++) {
 			if ((rand() % 2) == 1) {
 				adjMatr[i][k] = 1;
 				adjMatr[k][i] = 1;
 			}
 		}
 		int n = 0;
-		for (int j = 0; j < TEST_VERTEX_NUM; j++) {
+		for (int j = 0; j < real_size; j++) {
 			if (adjMatr[i][j] == 1) {
 				n++;
 			}
 		}
-		while (n < TEST_VERTEX_NUM / 2) {
-			int rnd = rand() % TEST_VERTEX_NUM;
+		while (n < real_size / 2) {
+			int rnd = rand() % real_size;
 			if (adjMatr[i][rnd] == 0 && rnd != i) {
 				adjMatr[i][rnd] = 1;
 				adjMatr[rnd][i] = 1;
 				n++;
 			}
 		}
-		for (int j = i + 1; j < TEST_VERTEX_NUM; j++) {
+		for (int j = i + 1; j < real_size; j++) {
 			if (adjMatr[i][j] == 1) {
 				fprintf(file, "%i ", j + 1);
 			}
@@ -227,7 +299,7 @@ void CreateRndHamiltonPath() {
 		fprintf(file, "\n");
 	}
 
-	for (int i = 0; i < TEST_VERTEX_NUM; i++) {
+	for (int i = 0; i < real_size; i++) {
 		free(adjMatr[i]);
 	}
 	free(adjMatr);

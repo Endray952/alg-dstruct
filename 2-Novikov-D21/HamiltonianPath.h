@@ -1,3 +1,3 @@
 #pragma once
 void FindHamiltonianPath();
-void CreateRndHamiltonPath();
+void CreateRndHamiltonPath(int test);
