@@ -90,6 +90,8 @@ void* ReadAdjacencyList(FILE* file) {
 
 	}
 }
+//Check if graph has abandoned vertex or graph has 3 or more vertexes
+//that connect with only one vertex, so there can't be Hamiltonian path
 int CheckAdjMatr() {
 	int endVertexNum = 0;
 	for (int i = 0; i < vertexNum; i++) {
@@ -150,8 +152,7 @@ void FindHamiltonianPath(int test) {
 		return;
 	}
 
-	//Check if graph has abandoned vertex or graph has 3 or more vertexes
-	//that connect with only one vertex, so there can't be Hamiltonian path
+	
 	FILE* output = fopen("output.txt", "w");
 	if (output == NULL) {
 		fprintf(stderr, "%s", "open file error");
@@ -191,63 +192,7 @@ void FindHamiltonianPath(int test) {
 	}
 	fclose(output);
 }
-//void CreateRndHamiltonPath() {
-//	//Using Dirac condition: if degree of every vertex >= n/2 then it's hamiltonian path
-//	srand(time(NULL));
-//	FILE* file = fopen("input.txt", "w");
-//	if (file == NULL) {
-//		fprintf(stderr, "%s", "open file error");
-//		return;
-//	}
-//	int** adjMatr = (int**)calloc(TEST_VERTEX_NUM, sizeof(int*));
-//	if (adjMatr == NULL) {
-//		return NULL;
-//	}
-//	for (int i = 0; i < TEST_VERTEX_NUM; i++) {
-//		adjMatr[i] = (int*)calloc(TEST_VERTEX_NUM, sizeof(int));
-//		if (adjMatr[i] == NULL) {
-//			fprintf(stderr, "%s", "malloc error");
-//			return NULL;
-//		}
-//	}
-//	fprintf(file, "%i\n", TEST_VERTEX_NUM);
-//	for (int i = 0; i < TEST_VERTEX_NUM; i++) {
-//		fprintf(file, "%i ", i + 1);
-//		for (int k = i + 1; k < TEST_VERTEX_NUM; k++) {
-//			if ((rand() % 2) == 1) {
-//				adjMatr[i][k] = 1;
-//				adjMatr[k][i] = 1;
-//			}
-//		}
-//		int n = 0;
-//		for (int j = 0; j < TEST_VERTEX_NUM; j++) {
-//			if (adjMatr[i][j] == 1) {
-//				n++;
-//			}
-//		}
-//		while (n < TEST_VERTEX_NUM / 2) {
-//			int rnd = rand() % TEST_VERTEX_NUM;
-//			if (adjMatr[i][rnd] == 0 && rnd != i) {
-//				adjMatr[i][rnd] = 1;
-//				adjMatr[rnd][i] = 1;
-//				n++;
-//			}
-//		}
-//		for (int j = i + 1; j < TEST_VERTEX_NUM; j++) {
-//			if (adjMatr[i][j] == 1) {
-//				fprintf(file, "%i ", j + 1);
-//			}
-//
-//		}
-//		fprintf(file, "\n");
-//	}
-//
-//	for (int i = 0; i < TEST_VERTEX_NUM; i++) {
-//		free(adjMatr[i]);
-//	}
-//	free(adjMatr);
-//	fclose(file);
-//}
+
 void CreateRndHamiltonPath(int size_to_write, int real_size) {
 	//Using Dirac condition: if degree of every vertex >= n/2 then it's hamiltonian path
 	srand(time(NULL));
