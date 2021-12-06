@@ -93,9 +93,6 @@ void printTreeRecursive(btree_t* root, int space, int len)
 		printTreeRecursive(root->right, space, size);
 	}
 	printf("\n");
-	/*for (int i = 0; i < space - max_name_size; i++) {
-		printf(" ");
-	}*/
 	for (int i = 0; i < space - 2 * max_name_size + len; i++) {
 		printf(" ");
 	}	
@@ -104,9 +101,7 @@ void printTreeRecursive(btree_t* root, int space, int len)
 			printf("-");
 		}
 	}
-	
 	printf("%s\n", root->name);
-	
 	if (root->left != NULL) {
 		printTreeRecursive(root->left, space, size);
 	}
@@ -122,14 +117,12 @@ void FindMax(btree_t* tree) {
 		FindMax(tree->left);
 		FindMax(tree->right);
 	}
-
 }
 void printTree(btree_t* tree)
 {
 	FindMax(tree);
 	max_name_size++;
 	printTreeRecursive(tree, 0, 0);
-
 }
 
 
