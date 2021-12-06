@@ -5,13 +5,17 @@ char* file_content;
 int pos_in_file_content;
 int max_name_size = 0;
 int recurs_err = !RECURSION_ERROR;
+int nodes = 0;
 typedef struct btree_t {
 	struct btree_t* left;
 	struct btree_t* right;
 	char* name;
 }btree_t;
-
-
+typedef struct {
+	char* str;
+	btree_t* tree;
+}tree_print_t;
+void Find(btree_t* tree);
 btree_t* RecursiveTreeParser() {
 	if (file_content[pos_in_file_content] == '\'') {
 		pos_in_file_content += 2;
@@ -83,29 +87,35 @@ btree_t* ReadBinaryTree() {
 	free(file_content);
 	return btree;
 }
-
-
-void printTreeRecursive(btree_t* root, int space, int len)
-{
+tree_print_t* tree_print;
+int elem = 0;
+void printTreeRecursive(btree_t* root, int space, int len){
 	space += max_name_size;
 	int size = strlen(root->name);
 	if (root->right != NULL) {
 		printTreeRecursive(root->right, space, size);
 	}
-	printf("\n");
+	//printf("\n");
+	tree_print[elem].str = calloc((space + 1), sizeof(char));
+	tree_print[elem].tree = root;
 	for (int i = 0; i < space - 2 * max_name_size + len; i++) {
-		printf(" ");
+		//printf(" ");
+		tree_print[elem].str[i] = ' ';
 	}	
 	if (space - 2 * max_name_size + len > 0) {
 		for (int i = space - 2 * max_name_size + len; i < space - max_name_size; i++) {
-			printf("-");
+			//printf("-");
+			tree_print[elem].str[i] = '-';
 		}
 	}
-	printf("%s\n", root->name);
+	for (int i = 0; i < size; i++){
+		tree_print[elem].str[space - max_name_size + i] = root->name[i];
+	}
+	elem++;
+	//printf("%s\n", root->name);
 	if (root->left != NULL) {
 		printTreeRecursive(root->left, space, size);
 	}
-	
 }
 
 void FindMax(btree_t* tree) {
@@ -116,15 +126,56 @@ void FindMax(btree_t* tree) {
 		}
 		FindMax(tree->left);
 		FindMax(tree->right);
+		nodes++;
 	}
 }
-void printTree(btree_t* tree)
-{
+void printTree(btree_t* tree){
 	FindMax(tree);
 	max_name_size++;
+	tree_print = malloc(nodes * sizeof(tree_print_t));
 	printTreeRecursive(tree, 0, 0);
+	Find(tree);
 }
-
+void Find(btree_t* tree) {
+	if (tree != NULL) {
+		int right_ind = -1;
+		int left_ind = -1;
+		int own_ind;
+		for (int i = 0; i < nodes; i++) {
+			if (tree == tree_print[i].tree) {
+				own_ind = i;
+				break;
+			}
+		}
+		for (int i = 0; i < nodes; i++) {
+			if (tree->right == tree_print[i].tree) {
+				right_ind = i;
+			}
+			else if (tree->left == tree_print[i].tree) {
+				left_ind = i;
+			}
+			else if (right_ind > 0 && left_ind > 0) {
+				break;
+			}
+		}
+		if (right_ind >= 0) {
+			//int len = strlen(tree->name);
+			int len = strlen(tree_print[own_ind].str);
+			for (int i = right_ind + 1; i < own_ind; i++) {
+				tree_print[i].str[len] = '|';
+			}
+		}
+		if (left_ind >= 0) {
+			//int len = strlen(tree->name);
+			int len = strlen(tree_print[own_ind].str);
+			for (int i = own_ind + 1; i < left_ind; i++) {
+				tree_print[i].str[len] = '|';
+			}
+		}
+		Find(tree->right);
+		Find(tree->left);
+	}
+}
 
 int main() {
 	btree_t* tree = ReadBinaryTree();
@@ -132,5 +183,10 @@ int main() {
 		return -1;
 	}
 	printTree(tree);
+	//printf("%i", nodes);
+	puts("");
+	for (int i = 0; i < nodes; i++){
+		puts(tree_print[i].str);
+	}
 	return 0;
 }
