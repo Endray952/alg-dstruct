@@ -50,7 +50,8 @@ static KeyStatus __del(B_node* node, int key) {
 		return --node->keys_num >= (node == root ? 1 : MIN) ? SUCCESS : LESS_KEYS;
 	}
 	if (pos < n && key == key_arr[pos]) {
-		B_node* qp = p[pos], * qp1;
+		B_node* qp = p[pos]; 
+		B_node* qp1;
 		int nkey;
 		while (1) {
 			nkey = qp->keys_num;
@@ -134,28 +135,28 @@ void DeleteNode(int key) {
 }
 
 
-static void __split(B_node* root_node, int index) {
-	B_node* right_child = __allocate_node();
-	B_node* left_child = root_node->children[index];
-	right_child->keys_num = MIN;
+static void __split(B_node* upnode, int index) {
+	B_node* rptr = __allocate_node();
+	B_node* lptr = upnode->children[index];
+	rptr->keys_num = MIN;
 	for (int i = 0; i < MIN; i++) {
-		right_child->keys[i] = left_child->keys[i + T];
+		rptr->keys[i] = lptr->keys[i + T];
 	}
-	if (left_child->children[0] != NULL) {
+	if (lptr->children[0] != NULL) {
 		for (int i = 0; i < T; i++) {
-			right_child->children[i] = left_child->children[i + T];
+			rptr->children[i] = lptr->children[i + T];
 		}
 	}
-	left_child->keys_num = MIN;
-	for (int i = root_node->keys_num; i >= index; i--) {
-		root_node->children[i + 1] = root_node->children[i];
+	lptr->keys_num = MIN;
+	for (int i = upnode->keys_num; i >= index; i--) {
+		upnode->children[i + 1] = upnode->children[i];
 	}
-	root_node->children[index + 1] = right_child;
-	for (int i = root_node->keys_num - 1; i >= index; i--) {
-		root_node->keys[i + 1] = root_node->keys[i];
+	upnode->children[index + 1] = rptr;
+	for (int i = upnode->keys_num - 1; i >= index; i--) {
+		upnode->keys[i + 1] = upnode->keys[i];
 	}
-	root_node->keys[index] = left_child->keys[T - 1];
-	root_node->keys_num++;
+	upnode->keys[index] = lptr->keys[T - 1];
+	upnode->keys_num++;
 }
 
 
@@ -187,9 +188,9 @@ static void __ins_not_full(B_node* node, int data) {
 
 
 void InsertNode(int data) {
-	if (Search(data)) {
+	/*if (Search(data)) {
 		return;
-	}
+	}*/
 	if (root == NULL) {
 		root = __allocate_node();
 		root->keys[0] = data;
