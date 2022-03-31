@@ -8,7 +8,7 @@
 #define WIDTH  (8 * sizeof(uint16_t))
 #define TOPBIT (1 << (WIDTH - 1))
 #define POLYNOMIAL (0x1021)
-#define TABLE_SIZE 631
+#define TABLE_SIZE 21751
 
 typedef struct List_t {
     struct List_t* next;
@@ -23,12 +23,12 @@ void ListAdd(List_t* parent, char* message) {
     int len = strlen(message);
     List_t* current = parent;
     for (; current->next != NULL; current = current->next) {
-        /*if (strcmp(current->next->data, message) == 0) {
-            return;
-        }*/
-        if (atoi(current->next->data) == atoi(message)) {
+        if (strcmp(current->next->data, message) == 0) {
             return;
         }
+        /*if (atoi(current->next->data) == atoi(message)) {
+            return;
+        }*/
     }
     List_t* new_list = malloc(sizeof(List_t));
     new_list->next = NULL;
@@ -39,8 +39,8 @@ void ListAdd(List_t* parent, char* message) {
 
 int ListFind(List_t* parent, char* message) {
     for (List_t* current = parent->next; current != NULL; current = current->next) {
-        //if (strcmp(current->data, message) == 0) {
-        if (atoi(current->data) == atoi(message)) {
+        if (strcmp(current->data, message) == 0) {
+        //if (atoi(current->data) == atoi(message)) {
             return 1;
         }
     }
@@ -50,8 +50,8 @@ int ListFind(List_t* parent, char* message) {
 void ListDelete(List_t* parent, char* message) {
     List_t* previous = parent;
     for (List_t* current = parent->next; current != NULL; current = current->next) {
-        //if (strcmp(current->data, message) == 0) {
-        if (atoi(current->data) == atoi(message)) {
+        if (strcmp(current->data, message) == 0) {
+        //if (atoi(current->data) == atoi(message)) {
             previous->next = current->next;
             //free(current->data);
             //free(current);
