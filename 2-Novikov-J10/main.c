@@ -8,6 +8,7 @@
 
 int main() {
     CreateCRCTable();
+    //TestHashUniformity();
     char command;
     char message[1000];
     while (scanf("%c", &command) >= 1) {

@@ -3,10 +3,17 @@
 #include<string.h>
 #include<stdlib.h>
 #include"crc16.h"
+#include<stdio.h>
+#include <time.h>
+
+typedef struct List_t {
+    struct List_t* next;
+    char* data;
+}List_t;
 
 List_t* HASH_TABLE[TABLE_SIZE];
 uint16_t  CRC_TABLE[BYTE];
-
+int COLISSION_TABLE[TABLE_SIZE] = {0};
 
 static void ListAdd(List_t* parent, char* message) {
     int len = strlen(message) + 1;
@@ -52,7 +59,7 @@ static void ListDelete(List_t* parent, char* message) {
 
 
 void CreateCRCTable() {
-    uint16_t  remainder = 0xFFFF;
+    uint16_t  remainder;
     for (int dividend = 0; dividend < BYTE; dividend++) {
         remainder = dividend << (WIDTH - 8);
         for (uint8_t bit = 8; bit > 0; bit--) {
@@ -65,7 +72,6 @@ void CreateCRCTable() {
         }
         CRC_TABLE[dividend] = remainder;
     }
-
 }
 
 
@@ -90,6 +96,7 @@ void HashTableAdd(char* message) {
         }
         HASH_TABLE[index]->next = NULL;
     }
+    COLISSION_TABLE[index]++;
     ListAdd(HASH_TABLE[index], message);
 }
 
@@ -123,5 +130,43 @@ void NaiveFindCollision() {
             return;
         }
         i++;
+    }
+}
+
+
+void TestHashUniformity() {
+    srand(time(NULL));
+    char* str = calloc(101, sizeof(char));
+    for (int i = 0; i < TABLE_SIZE ; i++){
+        for (int i = 0; i < 101; i++){
+            str[i] = '\0';
+        }
+        int words_num = rand() % 100;
+        for (int k = 0; k < words_num; k++) {
+            str[k] = (char)(rand() % 256);
+        }
+        HashTableAdd(str);     
+    }
+    for (int i = 1; i < TABLE_SIZE + 1; i++){
+        printf("%i  ", COLISSION_TABLE[i-1]);
+        if (i % 25 == 0) {
+            puts("");
+        }
+    }
+    int collision_number[15] = {0};
+    for (int i = 0; i < TABLE_SIZE; i++){
+        collision_number[COLISSION_TABLE[i]]++;
+    }
+    puts("");
+    int flag = 0;
+    for (int i = 14; i >= 0; i--){
+        if (collision_number[i] != 0) {
+            flag = 1;
+        }
+        if (flag) {
+            if (collision_number[i] != -1) {
+                printf("Number of cells with %i elements: %i \n", i, collision_number[i]);
+            }
+        } 
     }
 }
